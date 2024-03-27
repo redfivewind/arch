@@ -81,7 +81,6 @@ echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
 pacstrap /mnt \
     amd-ucode \
     base \
-    base-devel \
     dhcpcd \
     gptfdisk \
     grub \
@@ -97,15 +96,9 @@ pacstrap /mnt \
     networkmanager \
     net-tools \
     p7zip \
-    pavucontrol \
-    pulseaudio \
-    pulseaudio-alsa \
     rkhunter \
     sudo \
-    thermald \
     tlp \
-    unrar \
     unzip \
-    wpa_supplicant \
     zip
 sleep 2
