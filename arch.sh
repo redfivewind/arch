@@ -1,4 +1,4 @@
-#KEYBOARD & LOCALE: ???
+#REGION: Keyboard, Locale, Timezone
 #SECURITY: EDR, Disable shell history, ...
 
 # Start message
