@@ -25,7 +25,7 @@ USER_NAME="user"
 USER_PASS=""
 
 # Retrieve the platform
-echo "[*] ..."
+echo "[*] Please enter the target plaform ('bios' or 'uefi')..."
 read platform
 
 if [ -z "$platform" ];
