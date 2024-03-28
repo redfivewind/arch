@@ -1,3 +1,4 @@
+#KEYBOARD & LOCALE: ???
 #SECURITY: EDR, Disable shell history, ...
 
 # Start message
