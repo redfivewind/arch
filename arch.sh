@@ -4,7 +4,6 @@
 #HYPERVISOR: -, KVM, XEN
 #LOCALE: en_US.UTF-8?
 #NETWORKING: ???
-#PLATFORM: BIOS, UEFI
 #SECURITY: EDR, Disable shell history, ...
 #TIME: Date format, Timezone
 
