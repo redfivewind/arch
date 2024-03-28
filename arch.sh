@@ -14,7 +14,6 @@ read
 
 # Initialise global variables
 echo "[*] Initialising global variables..."
-BIOS=""
 DISK=""
 KERNEL="linux-hardened"
 LUKS_LVM="luks_lvm"
@@ -24,6 +23,7 @@ LV_SWAP="lv_swap"
 LVM_VG="lvm_vg"
 PART_EFI=""
 PART_LUKS=""
+UEFI=""
 USER_NAME="user"
 USER_PASS=""
 
@@ -39,11 +39,11 @@ else
     if [ "$platform" == "bios" ];
     then
         echo "[*] Installing for platform BIOS..."
-        BIOS=1
+        UEFI=0
     elif [ "$platform" == "uefi" ];
     then
         echo "[*] Installing for platform UEFI..."
-        BIOS=0
+        UEFI=1
     else
         echo "[X] ERROR: The entered target platform is "$platform" but must be 'bios' or 'uefi'. Exiting..."
         exit 1
