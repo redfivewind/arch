@@ -1,4 +1,4 @@
-#REGION: Keyboard, Locale, Timezone
+#REGION: Locale - Timezone - Keyboard
 #SECURITY: EDR, Disable shell history, ...
 #YAY
 
