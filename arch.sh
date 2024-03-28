@@ -4,6 +4,7 @@
 #HYPERVISOR: -, KVM, XEN
 #LOCALE: en_US.UTF-8?
 #NETWORKING: ???
+#PLATFORM: BIOS or UEFI
 #SECURITY: EDR, Disable shell history, ...
 #TIME: Date format, Timezone
 
@@ -27,7 +28,7 @@ USER_NAME="user"
 USER_PASS=""
 
 # Retrieve the platform
-echo "[*] Please enter the target platform ('bios' or 'uefi')..."
+'''echo "[*] Please enter the target platform ('bios' or 'uefi')..."
 read platform
 
 if [ -z "$platform" ];
@@ -47,7 +48,7 @@ else
         echo "[X] ERROR: The entered target platform is "$platform" but must be 'bios' or 'uefi'. Exiting..."
         exit 1
     fi
-fi
+fi'''
 
 # Retrieve the LUKS password
 echo "[*] Please enter the LUKS password: "
