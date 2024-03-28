@@ -1,4 +1,3 @@
-#HYPERVISOR: -, KVM, XEN
 #NETWORKING: ???
 #GPU: AMD/ATI, Intel, NVIDIA
 #DESKTOP: -, Hyprland, XFCE
@@ -35,14 +34,37 @@ then
 else
     if [ "$platform" == "bios" ];
     then
-        echo "[*] Installing for platform BIOS..."
+        echo "[*] Platform: '$platform'..."
         UEFI=0
     elif [ "$platform" == "uefi" ];
     then
-        echo "[*] Installing for platform UEFI..."
+        echo "[*] Platform: '$platform'..."
         UEFI=1
     else
         echo "[X] ERROR: The entered target platform is "$platform" but must be 'bios' or 'uefi'. Exiting..."
+        exit 1
+    fi
+fi
+
+# Retrieve the hypervisor
+echo "[*] Please enter the hypervisor ('kvm' or 'xen')..."
+read hypervisor
+
+if [ -z "$hypervisor" ];
+then
+    echo "[X] ERROR: The entered hypervisor is empty. Exiting..."
+    exit 1
+else
+    if [ "$hypervisor" == "kvm" ];
+    then
+        echo "[*] Hypervisor: '$hypervisor'..."
+        XEN=0
+    elif [ "$hypervisor" == "uefi" ];
+    then
+        echo "[*] Hypervisor: '$hypervisor'..."
+        XEN=1
+    else
+        echo "[X] ERROR: The entered hypervisor is "$hypervisor" but must be 'kvm' or 'xen'. Exiting..."
         exit 1
     fi
 fi
