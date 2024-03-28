@@ -2,9 +2,11 @@
 #DESKTOP: -, Hyprland, XFCE
 #GPU: AMD/ATI, Intel, NVIDIA
 #HYPERVISOR: -, KVM, XEN
+#LOCALE: en_US.UTF-8?
 #NETWORKING: ???
-#PLATFORM: BIOS, UEFI, UEFI Secure Boot
+#PLATFORM: BIOS, UEFI
 #SECURITY: EDR, Disable shell history, ...
+#TIME: Date format, Timezone
 
 # Start message
 echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
@@ -12,7 +14,17 @@ read
 
 # Initialise global variables
 echo "[*] Initialising global variables..."
-#FIXME
+KERNEL="linux-hardened" # Linux kernel (e.g., linux, linux-hardened, linux-lts, etc.)
+LUKS_PASS="" # LUKS FDE password
+LV_ROOT="root" # Label & name of the root partition
+LV_SWAP="swap" # Label & name of the swap partition
+LVM_LUKS="lvm_luks" # LUKS LVM
+PART_EFI="${DEV}p1" # EFI partition
+PART_LUKS="${DEV}p2" # LUKS partition
+SCRIPT=$(readlink -f "$0") # Absolute script path
+USER_NAME="user" # Username
+USER_PASS="" # Home user password
+VG_LUKS="vg_luks" # LUKS volume group
 
 # Parse arguments
 echo "[*] Parsing arguments..."
@@ -102,3 +114,69 @@ pacstrap /mnt \
     unzip \
     zip
 sleep 2
+
+# Mount or create necessary entry points
+echo "[*] Mounting necessary filesystems..."
+mount -t proc proc /mnt/proc
+mount -t sysfs sys /mnt/sys
+mount -o bind /dev /mnt/dev
+mount -t devpts /dev/pts /mnt/dev/pts/
+mount -o bind /sys/firmware/efi/efivars /mnt/sys/firmware/efi/efivars    
+sleep 2
+
+# fstab
+echo "[*] Generating fstab file and setting the 'noatime' property..."
+genfstab -U /mnt > /mnt/etc/fstab
+sed -i 's/relatime/noatime/g' /mnt/etc/fstab
+sleep 2
+
+# German keyboard layout
+echo "[*] Loading German keyboard layout..."
+arch-chroot /mnt /bin/bash -c "\
+    loadkeys de-latin1;\
+    localectl set-keymap de"
+sleep 2
+
+# Network time synchronisation
+echo "[*] Enabling network time synchronization..."
+arch-chroot /mnt /bin/bash -c "\
+    timedatectl set-ntp true"
+sleep 2
+
+# System update
+echo "[*] Updating the system..."
+arch-chroot /mnt /bin/bash -c "\
+    pacman --disable-download-timeout --noconfirm -Scc;\
+    pacman --disable-download-timeout --noconfirm -Syyu"
+sleep 2
+
+# Time
+echo "[*] Setting the timezone & hardware clock..."
+arch-chroot /mnt /bin/bash -c "\
+    timedatectl set-timezone Europe/Berlin;\
+    ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime;\
+    hwclock --systohc --utc"
+sleep 2
+
+# Locale
+echo "[*] Initializing the locale..."
+arch-chroot /mnt /bin/bash -c "\
+    echo \"en_US.UTF-8 UTF-8\" > /etc/locale.gen;\
+    locale-gen;\
+    echo \"LANG=en_US.UTF-8\" > /etc/locale.conf;\
+    export LANG=en_US.UTF-8;\
+    echo \"KEYMAP=de-latin1\" > /etc/vconsole.conf;\
+    echo \"FONT=lat9w-16\" >> /etc/vconsole.conf"
+
+# Network
+echo "[*] Setting hostname and /etc/hosts..."
+echo $HOSTNAME > /mnt/etc/hostname
+echo "127.0.0.1 localhost" > /mnt/etc/hosts
+echo "::1 localhost" >> /mnt/etc/hosts
+arch-chroot /mnt /bin/bash -c "\
+    systemctl enable dhcpcd"
+
+# mkinitcpio
+echo "[*] Adding the LUKS partition to /etc/crypttab..."
+printf "${LVM_LUKS}\tUUID=%s\tnone\tluks\n" "$(cryptsetup luksUUID $PART_LUKS)" | tee -a /mnt/etc/crypttab
+cat /mnt/etc/crypttab
