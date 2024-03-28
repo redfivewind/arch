@@ -519,22 +519,12 @@ else
     exit 1
 fi
 
-# SETUP KEYBOARD LAYOUT
-echo "[*] Loading German keyboard layout..."
+# UPDATE SYSTEM
+echo "[*] Updating the system..."
 arch-chroot /mnt /bin/bash -c "\
-    loadkeys de-latin1;\
-    localectl set-keymap de"
+    pacman --disable-download-timeout --noconfirm -Scc;\
+    pacman --disable-download-timeout --noconfirm -Syyu"
 sleep 2
-
-# SETUP LOCALE
-echo "[*] Setting up the locale..."
-arch-chroot /mnt /bin/bash -c "\
-    echo \"en_US.UTF-8 UTF-8\" > /etc/locale.gen;\
-    locale-gen;\
-    echo \"LANG=en_US.UTF-8\" > /etc/locale.conf;\
-    export LANG=en_US.UTF-8;\
-    echo \"KEYMAP=de-latin1\" > /etc/vconsole.conf;\
-    echo \"FONT=lat9w-16\" >> /etc/vconsole.conf"
 
 # SETUP TIME
 echo "[*] Setting up the hardware clock..."
@@ -548,11 +538,21 @@ echo "[*] Enabling network time synchronisation..."
 chroot /mnt timedatectl set-ntp true
 sleep 2
 
-# UPDATE SYSTEM
-echo "[*] Updating the system..."
+# SETUP LOCALE
+echo "[*] Setting up the locale..."
 arch-chroot /mnt /bin/bash -c "\
-    pacman --disable-download-timeout --noconfirm -Scc;\
-    pacman --disable-download-timeout --noconfirm -Syyu"
+    echo \"en_US.UTF-8 UTF-8\" > /etc/locale.gen;\
+    locale-gen;\
+    echo \"LANG=en_US.UTF-8\" > /etc/locale.conf;\
+    export LANG=en_US.UTF-8;\
+    echo \"KEYMAP=de-latin1\" > /etc/vconsole.conf;\
+    echo \"FONT=lat9w-16\" >> /etc/vconsole.conf"
+
+# SETUP KEYBOARD LAYOUT
+echo "[*] Loading German keyboard layout..."
+arch-chroot /mnt /bin/bash -c "\
+    loadkeys de-latin1;\
+    localectl set-keymap de"
 sleep 2
 
 # USER MANAGEMENT
