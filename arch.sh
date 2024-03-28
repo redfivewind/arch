@@ -66,7 +66,7 @@ else
 fi
 
 # Enable/disable networking
-echo "[*] Enable networking? (yes/no)
+echo "[*] Enable networking? (yes/no)"
 read networking
 networking="${networking,,}"
 
@@ -84,7 +84,7 @@ else
 fi
 
 # Enable/disable (proprietary) GPU drivers
-echo "[*] Enable AMD GPU drivers? (yes/no)
+echo "[*] Enable AMD GPU drivers? (yes/no)"
 read gpu_amd
 gpu_amd="${gpu_amd,,}"
 
@@ -101,7 +101,7 @@ else
     exit 1
 fi
 
-echo "[*] Enable Intel GPU drivers? (yes/no)
+echo "[*] Enable Intel GPU drivers? (yes/no)"
 read gpu_intel
 gpu_intel="${gpu_intel,,}"
 
@@ -118,7 +118,7 @@ else
     exit 1
 fi
 
-echo "[*] Enable NVIDIA GPU drivers? (yes/no)
+echo "[*] Enable NVIDIA GPU drivers? (yes/no)"
 read gpu_nvidia
 gpu_nvidia="${gpu_nvidia,,}"
 
@@ -201,18 +201,47 @@ else
     exit 1
 fi
 
-# Network time synchronisation
-echo "[*] Enabling network time synchronization..."
-timedatectl set-ntp true
-
-# Update the pacman database
-echo "[*] Updating the pacman database..."
-pacman --disable-download-timeout --noconfirm -Scc
-pacman --disable-download-timeout --noconfirm -Syy
-
 # Partition the disk
 echo "[*] Partitioning the disk..."
-#FIXME
+
+if [ "$UEFI" == 0 ];
+then
+    echo "[*] Partitioning the target disk using MBR partition layout..."
+    parted $DISK mktable msdos
+    
+    parted $DISK mkpart primary ext4 0% 100%
+    parted $DISK set 1 boot on
+    parted $DISK name 1 $PART_LUKS_LABEL
+
+    sync
+elif [ "$UEFI" == 1 ];
+then
+    echo "[*] Partitioning the target disk using GPT partition layout..."
+    parted $DISK mktable gpt
+    
+    parted $DISK mkpart primary fat32 1MiB 512MiB 
+    parted $DISK set 1 boot on 
+    parted $DISK set 1 esp on
+    parted $DISK name 1 $PART_EFI_LABEL
+    
+    parted $DISK mkpart primary ext4 512MiB 100%
+    parted $DISK name 2 $PART_LUKS_LABEL
+
+    sync
+else
+    echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+for i in $(seq 10)
+do 
+    echo "[*] Populating the kernel partition tables ($i/10)..."
+    partprobe $DISK
+    sync
+    sleep 1
+done
+
+parted $DISK print
 
 # Setup LUKS
 echo "[*] Setting up LUKS..."
@@ -230,38 +259,123 @@ lvcreate -l 100%FREE $VG_LUKS -n $LV_ROOT
 sleep 2
 
 # Format & mount partitions
-echo "[*] Formatting & mounting the partitions..."
-#FIXME
+echo "[*] Formatting & mounting required partitions..."
 
-# Install base packages
+if [ "$UEFI" == 0 ];
+then
+    echo "[*] Skipping the EFI partition because the selected platform is BIOS..."
+elif [ "$UEFI" == 1 ];
+then
+    echo "[*] Processing the EFI partition..."
+    mkfs.vfat $PART_EFI
+    mkdir -p /mnt/boot/efi
+    mount -t vfat $PART_EFI /mnt/boot/efi
+else
+    echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+echo "[*] Processing the root partition..."
+mkfs.ext4 /dev/mapper/$LVM_VG-$LV_ROOT
+mount -t ext4 /dev/$LVM_VG/$LV_ROOT /mnt
+
+echo "[*] Processing the swap partition..."
+mkswap /dev/mapper/$LVM_VG-$LV_SWAP -L $LV_SWAP
+swapon /dev/$LVM_VG/$LV_SWAP
+sleep 2
+
+# Update the pacman database
+echo "[*] Updating the pacman database..."
+pacman --disable-download-timeout --noconfirm -Scc
+pacman --disable-download-timeout --noconfirm -Syy
+
+# Bootstrap Arch Linux into /mnt
 echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
 pacstrap /mnt \
     amd-ucode \
     base \
-    dhcpcd \
+    dhcpcd \ #FIXME
     gptfdisk \
-    grub \
-    gvfs \
+    grub \ #FIXME
+    gvfs \ #FIXME
     intel-ucode \
-    iptables-nft \
-    iwd \
+    iptables-nft \ #FIXME
+    iwd \ #FIXME
     $KERNEL \
     linux-firmware \
     lvm2 \
     mkinitcpio \
     nano \
-    networkmanager \
-    net-tools \
+    networkmanager \ #FIXME
+    net-tools \ #FIXME
     p7zip \
-    rkhunter \
+    rkhunter \ #FIXME
     sudo \
-    tlp \
+    tlp \ #FIXME
     unzip \
     zip
 sleep 2
 
-# Mount or create necessary entry points
-echo "[*] Mounting necessary filesystems..."
+# Networking
+if [ "$NETWORKING" == 0 ];
+then
+    #FIXME
+elif [ "$NETWORKING" == 1 ];
+then
+    #FIXME
+else
+    echo "[*] Variable 'NETWORKING' is '$NETWORKING' but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+# GPU
+if [ "$GPU_AMD" == 0 ];
+then
+    #FIXME
+elif [ "$GPU_AMD" == 1 ];
+then
+    #FIXME
+else
+    echo "[*] Variable 'GPU_AMD' is '$GPU_AMD' but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+if [ "$GPU_INTEL" == 0 ];
+then
+    #FIXME
+elif [ "$GPU_INTEL" == 1 ];
+then
+    #FIXME
+else
+    echo "[*] Variable 'GPU_INTEL' is '$GPU_INTEL' but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+if [ "$GPU_NVIDIA" == 0 ];
+then
+    #FIXME
+elif [ "$GPU_NVIDIA" == 1 ];
+then
+    #FIXME
+else
+    echo "[*] Variable 'GPU_NVIDIA' is '$GPU_NVIDIA' but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+# Audio
+if [ "$AUDIO" == 0 ];
+then
+    #FIXME
+elif [ "$AUDIO" == 1 ];
+then
+    #FIXME
+else
+    echo "[*] Variable 'AUDIO' is '$AUDIO' but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+# Mount required filesystems
+echo "[*] Mounting required filesystems..."
 mount -t proc proc /mnt/proc
 mount -t sysfs sys /mnt/sys
 mount -o bind /dev /mnt/dev
@@ -269,10 +383,10 @@ mount -t devpts /dev/pts /mnt/dev/pts/
 
 if [ "$UEFI" == 0 ];
 then
-    echo "[*] Skipping '/sys/firmware/efi/efivars' because the selected platform is BIOS."
+    echo "[*] Skipping '/sys/firmware/efi/efivars' because the selected platform is BIOS..."
 if [ "$UEFI" == 1 ];
 then
-    echo "[*] Mounting '/sys/firmware/efi/efivars' because the selected platform is UEFI."
+    echo "[*] Mounting '/sys/firmware/efi/efivars' because the selected platform is UEFI..."
     mount -o bind /sys/firmware/efi/efivars /mnt/sys/firmware/efi/efivars
 else
     echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. Exiting..."
@@ -304,6 +418,10 @@ echo "HOOKS=(autodetect base block encrypt filesystems fsck keyboard kms lvm2 mo
 arch-chroot /mnt /bin/bash -c "\
     mkinitcpio -p $KERNEL"
 sleep 2
+
+# Boot
+echo "[*] Setting up the boot environment..."
+#FIXME
 
 # Keyboard layout
 echo "[*] Loading German keyboard layout..."
@@ -350,3 +468,44 @@ echo "127.0.0.1 localhost" > /mnt/etc/hosts
 echo "::1 localhost" >> /mnt/etc/hosts
 arch-chroot /mnt /bin/bash -c "\
     systemctl enable dhcpcd"
+
+
+# User management
+echo "[*] Adding the generic home user: '$USER_NAME'..."
+arch-chroot /mnt /bin/bash -c "\
+    useradd -m -G wheel,users $USER_NAME"
+
+echo "[*] Granting sudo rights to the home user..."
+echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
+echo "@includedir /etc/sudoers.d" >> /mnt/etc/sudoers
+
+echo "[*] Setting the home user password..."
+echo -n "$USER_NAME:$USER_PASS" | chpasswd -R /mnt
+sleep 2
+
+echo "[*] Disabling the root account..."
+passwd --root /mnt --lock root
+
+# Add user paths & scripts
+echo "[*] Adding user paths & scripts..."
+mkdir -p /mnt/home/$USER_NAME/tools
+mkdir -p /mnt/home/$USER_NAME/workspace
+
+echo "\
+    sudo pacman --disable-download-timeout --needed --noconfirm -Syyu\n\
+    yay --disable-download-timeout --needed --noconfirm -Syyu\n\
+    sudo pacman --noconfirm -Rns \$(pacman -Qdtq)\n\
+    sudo chmod 4755 /opt/*/chrome-sandbox\n"\
+> /mnt/home/$USER_NAME/tools/update.sh
+
+arch-chroot /mnt /bin/bash -c "\
+    chown -R $USER_NAME:users /home/$USER_NAME"
+
+# Unmount filesystems
+echo "[*] Unmounting filesystems..."
+sync
+umount -a
+
+# Stop message
+echo "[*] Work done. Exiting..."
+exit 0
