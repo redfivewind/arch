@@ -14,21 +14,30 @@ read
 
 # Initialise global variables
 echo "[*] Initialising global variables..."
-KERNEL="linux-hardened" # Linux kernel (e.g., linux, linux-hardened, linux-lts, etc.)
-LUKS_PASS="" # LUKS FDE password
-LV_ROOT="root" # Label & name of the root partition
-LV_SWAP="swap" # Label & name of the swap partition
-LVM_LUKS="lvm_luks" # LUKS LVM
-PART_EFI="${DEV}p1" # EFI partition
-PART_LUKS="${DEV}p2" # LUKS partition
-SCRIPT=$(readlink -f "$0") # Absolute script path
-USER_NAME="user" # Username
-USER_PASS="" # Home user password
-VG_LUKS="vg_luks" # LUKS volume group
+BIOS=""
+DISK=""
+KERNEL="linux-hardened"
+LUKS_PASS=""
+LV_ROOT="lv_root"
+LV_SWAP="lv_swap"
+LVM_LUKS="lvm_luks"
+PART_EFI=""
+PART_LUKS=""
+USER_NAME="user"
+USER_PASS=""
+LVM_VG="lvm_vg"
 
-# Parse arguments
-echo "[*] Parsing arguments..."
-#FIXME
+# Retrieve the platform
+echo "[*] Please enter the target platform (BIOS or UEFI)..."
+read platform
+
+if [ -z "$platform" ];
+then
+    echo "[X] ERROR: The entered target platform is empty. Exiting..."
+    exit 1
+else
+    
+fi
 
 # Retrieve the LUKS password
 echo "[*] Please enter the LUKS password: "
