@@ -284,7 +284,7 @@ mkswap /dev/mapper/$LVM_VG-$LV_SWAP -L $LV_SWAP
 swapon /dev/$LVM_VG/$LV_SWAP
 sleep 2
 
-# UPDATE THE PACMAN DATABASE
+# UPDATE PACMAN DATABASE
 echo "[*] Updating the pacman database..."
 pacman --disable-download-timeout --noconfirm -Scc
 pacman --disable-download-timeout --noconfirm -Syy
@@ -311,7 +311,7 @@ pacstrap /mnt \
     zip
 sleep 2
 
-# NETWORKING
+# SETUP NETWORKING
 if [ "$NETWORKING" == 0 ];
 then
     echo "[*] Skipping configuration for networking because networking is explicitely disabled."
@@ -337,7 +337,7 @@ echo "[*] Populating '/etc/hosts'..."
 echo "127.0.0.1 localhost" > /mnt/etc/hosts
 echo "::1 localhost" >> /mnt/etc/hosts
 
-# GPU
+# SETUP GPU
 if [ "$GPU_AMD" == 0 ];
 then
     #FIXME
@@ -371,7 +371,7 @@ else
     exit 1
 fi
 
-# AUDIO
+# SETUP AUDIO
 if [ "$AUDIO" == 0 ];
 then
     #FIXME
@@ -404,18 +404,18 @@ fi
 
 sleep 2
 
-# /ETC/CRYPTTAB
+# SETUP /ETC/CRYPTTAB
 echo "[*] Adding the LUKS partition to /etc/crypttab..."
 printf "${LVM_LUKS}\tUUID=%s\tnone\tluks\n" "$(cryptsetup luksUUID $PART_LUKS)" | tee -a /mnt/etc/crypttab
 cat /mnt/etc/crypttab
 
-# /ETC/FSTAB
+# SETUP /ETC/FSTAB
 echo "[*] Generating fstab file and setting the 'noatime' property..."
 genfstab -U /mnt > /mnt/etc/fstab
 sed -i 's/relatime/noatime/g' /mnt/etc/fstab
 sleep 2
 
-# MKINITCPIO
+# REBUILD INITRAMFS IMAGE
 echo "[*] Rebuilding initramfs image using mkinitcpio..."
 echo "MODULES=()" > /mnt/etc/mkinitcpio.conf
 echo "BINARIES=()" >> /mnt/etc/mkinitcpio.conf
@@ -424,7 +424,7 @@ arch-chroot /mnt /bin/bash -c "\
     mkinitcpio -p $KERNEL"
 sleep 2
 
-# BOOT
+# SETUP BOOT ENVIRONMENT
 echo "[*] Setting up the boot environment..."
 
 if [ "$UEFI" == 0 ];
@@ -458,12 +458,15 @@ arch-chroot /mnt /bin/bash -c "\
     echo \"FONT=lat9w-16\" >> /etc/vconsole.conf"
 
 # TIME
-echo "[*] Configuring the system time..."
-arch-chroot /mnt /bin/bash -c "\
-    timedatectl set-timezone Europe/Berlin;\
-    ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime;\
-    hwclock --systohc --utc;\
-    timedatectl set-ntp true"
+echo "[*] Setting up the hardware clock..."
+chroot /mnt hwclock --systohc --utc
+
+echo "[*] Setting up the timezone..."
+chroot /mnt ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+chroot /mnt timedatectl set-timezone Europe/Berlin
+
+echo "[*] Enabling network time synchronisation..."
+chroot /mnt timedatectl set-ntp true
 sleep 2
 
 # SYSTEM UPDATE
@@ -474,7 +477,7 @@ arch-chroot /mnt /bin/bash -c "\
 sleep 2
 
 # USER MANAGEMENT
-echo "[*] Adding the generic home user: '$USER_NAME'..."
+echo "[*] Adding the home user '$USER_NAME'..."
 arch-chroot /mnt /bin/bash -c "\
     useradd -m -G wheel,users $USER_NAME"
 
