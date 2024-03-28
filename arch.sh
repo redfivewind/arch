@@ -17,18 +17,18 @@ echo "[*] Initialising global variables..."
 BIOS=""
 DISK=""
 KERNEL="linux-hardened"
+LUKS_LVM="luks_lvm"
 LUKS_PASS=""
 LV_ROOT="lv_root"
 LV_SWAP="lv_swap"
-LVM_LUKS="lvm_luks"
+LVM_VG="lvm_vg"
 PART_EFI=""
 PART_LUKS=""
 USER_NAME="user"
 USER_PASS=""
-LVM_VG="lvm_vg"
 
 # Retrieve the platform
-echo "[*] Please enter the target platform (BIOS or UEFI)..."
+echo "[*] Please enter the target platform ('bios' or 'uefi')..."
 read platform
 
 if [ -z "$platform" ];
@@ -36,7 +36,18 @@ then
     echo "[X] ERROR: The entered target platform is empty. Exiting..."
     exit 1
 else
-    
+    if [ "$platform" == "bios" ];
+    then
+        echo "[*] Installing for platform BIOS..."
+        BIOS=1
+    elif [ "$platform" == "uefi" ];
+    then
+        echo "[*] Installing for platform UEFI..."
+        BIOS=0
+    else
+        echo "[X] ERROR: The entered target platform is "$platform" but must be 'bios' or 'uefi'. Exiting..."
+        exit 1
+    fi
 fi
 
 # Retrieve the LUKS password
