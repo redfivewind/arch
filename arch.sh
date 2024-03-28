@@ -29,8 +29,8 @@ USER_NAME="user"
 USER_PASS=""
 XEN=""
 
-# TARGET PLATFORM (BIOS/UEFI)
-echo "[*] Please select the target plaform ('bios' or 'uefi')..."
+# SELECT PLATFORM
+echo "[*] Please select the plaform ('bios' or 'uefi'): "
 read platform
 platform="${platform,,}"
 
@@ -47,8 +47,8 @@ else
     exit 1
 fi
 
-# HYPERVISOR (KVM/XEN)
-echo "[*] Please select the hypervisor ('kvm' or 'xen')..."
+# SELECT HYPERVISOR
+echo "[*] Please select the hypervisor ('kvm' or 'xen'): "
 read hypervisor
 hypervisor="${hypervisor,,}"
 
@@ -153,8 +153,8 @@ else
     exit 1
 fi
 
-# SELECT THE DESKTOP ENVIRONMENT (OPTIONAL)
-echo "[*] Please select the desktop environment ('-', 'hyprland' or 'xfce')..."
+# SELECT DESKTOP ENVIRONMENT (OPTIONAL)
+echo "[*] Please select the desktop environment ('-', 'hyprland' or 'xfce'): "
 read desktop
 desktop="${desktop,,}"
 
@@ -173,6 +173,86 @@ then
 else
     echo "[X] ERROR: Variable 'desktop' is '$desktop' but must be '-', 'hyprland' or 'xfce'. Exiting..."
     exit 1
+fi
+
+# SELECT DISK
+echo "[*] Retrieving available disks..."
+echo
+lsblk
+echo
+echo "[*] Please select the disk: "
+read disk
+
+if [ -z "$disk" ];
+then
+    echo "[X] ERROR: No disk was selected. Exiting..."
+    exit 1
+else
+    DISK="$disk"
+    
+    if [ -e "$DISK" ]; then
+        echo "[*] Path '$DISK' exists."
+    
+        if [ -b "$DISK" ]; then
+            echo "[*] Path '$DISK' is a valid block device." 
+    
+            if [[ $DISK == "/dev/mmc*" ]]; 
+            then
+                echo "[*] Target disk seems to be a MMC disk."
+
+                if [ "$UEFI" == 0 ];
+                then
+                    PART_EFI="- (BIOS installation)"
+                    PART_LUKS="${DISK}p1"
+                if [ "$UEFI" == 1 ];
+                then
+                    PART_EFI="${DISK}p1"
+                    PART_LUKS="${DISK}p2"
+                else
+                    echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. This is unexpected behaviour. Exiting..."
+                    exit 1
+                fi
+            elif [[ "$DISK" == "/dev/nvme*" ]]; 
+            then
+                  echo "[*] Target disk seems to be a NVME disk."
+    
+                if [ "$UEFI" == 0 ];
+                then
+                    PART_EFI="- (BIOS installation)"
+                    PART_LUKS="${DISK}p1"
+                if [ "$UEFI" == 1 ];
+                then
+                    PART_EFI="${DISK}p1"
+                    PART_LUKS="${DISK}p2"
+                else
+                    echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. This is unexpected behaviour. Exiting..."
+                    exit 1
+                fi
+            else
+                if [ "$UEFI" == 0 ];
+                then
+                    PART_EFI="- (BIOS installation)"
+                    PART_LUKS="${DISK}1"
+                if [ "$UEFI" == 1 ];
+                then
+                    PART_EFI="${DISK}1"
+                    PART_LUKS="${DISK}2"
+                else
+                    echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. This is unexpected behaviour. Exiting..."
+                    exit 1
+                fi
+            fi
+    
+            echo "[*] Target EFI partition: $PART_EFI."
+            echo "[*] Target LUKS partition: $PART_LUKS."
+        else
+            echo "[X] ERROR: '$DISK' is not a valid block device. Exiting..."
+            exit 1
+        fi
+    else
+        echo "[X] ERROR: Path '$DISK' does not exist. Exiting..."
+        exit 1
+    fi
 fi
 
 # LUKS PASSWORD
@@ -440,14 +520,14 @@ else
     exit 1
 fi
 
-# KEYBOARD LAYOUT
+# SETUP KEYBOARD LAYOUT
 echo "[*] Loading German keyboard layout..."
 arch-chroot /mnt /bin/bash -c "\
     loadkeys de-latin1;\
     localectl set-keymap de"
 sleep 2
 
-# LOCALE
+# SETUP LOCALE
 echo "[*] Setting up the locale..."
 arch-chroot /mnt /bin/bash -c "\
     echo \"en_US.UTF-8 UTF-8\" > /etc/locale.gen;\
@@ -457,7 +537,7 @@ arch-chroot /mnt /bin/bash -c "\
     echo \"KEYMAP=de-latin1\" > /etc/vconsole.conf;\
     echo \"FONT=lat9w-16\" >> /etc/vconsole.conf"
 
-# TIME
+# SETUP TIME
 echo "[*] Setting up the hardware clock..."
 chroot /mnt hwclock --systohc --utc
 
@@ -469,7 +549,7 @@ echo "[*] Enabling network time synchronisation..."
 chroot /mnt timedatectl set-ntp true
 sleep 2
 
-# SYSTEM UPDATE
+# UPDATE SYSTEM
 echo "[*] Updating the system..."
 arch-chroot /mnt /bin/bash -c "\
     pacman --disable-download-timeout --noconfirm -Scc;\
@@ -506,6 +586,23 @@ echo "\
 
 arch-chroot /mnt /bin/bash -c "\
     chown -R $USER_NAME:users /home/$USER_NAME"
+
+# SETUP DESKTOP ENIVORNMENT
+if [ "$DESKTOP" == "-" ];
+then
+    echo "[*] No desktop environment was selected. Skipping..."
+elif [ "$DESKTOP" == "hyprland" ];
+then
+    echo "[*] Installing desktop environment Hyprland..."
+    #FIXME
+elif [ "$DESKTOP" == "xfce" ];
+then
+    echo "[*] Installing desktop environment XFCE..."
+    #FIXME
+else
+    echo "[*] Variable 'DESKTOP' is '$DESKTOP' but must be '-*, 'hyprland' or 'xfce'. Exiting..."
+    exit 1
+fi
 
 # UNMOUNT FILESYSTEMS
 echo "[*] Unmounting filesystems..."
