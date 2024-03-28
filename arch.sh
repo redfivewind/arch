@@ -14,6 +14,7 @@ DISK=""
 GPU_AMD=""
 GPU_INTEL=""
 GPU_NVIDIA=""
+HOSTNAME="MacBookAirM1"
 KERNEL="linux-hardened"
 LUKS_LVM="luks_lvm"
 LUKS_PASS=""
@@ -265,8 +266,25 @@ mount -t proc proc /mnt/proc
 mount -t sysfs sys /mnt/sys
 mount -o bind /dev /mnt/dev
 mount -t devpts /dev/pts /mnt/dev/pts/
-mount -o bind /sys/firmware/efi/efivars /mnt/sys/firmware/efi/efivars    
+
+if [ "$UEFI" == 0 ];
+then
+    echo "[*] Skipping '/sys/firmware/efi/efivars' because the selected platform is BIOS."
+if [ "$UEFI" == 1 ];
+then
+    echo "[*] Mounting '/sys/firmware/efi/efivars' because the selected platform is UEFI."
+    mount -o bind /sys/firmware/efi/efivars /mnt/sys/firmware/efi/efivars
+else
+    echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. Exiting..."
+    exit 1
+fi 
+
 sleep 2
+
+# /etc/crypttab
+echo "[*] Adding the LUKS partition to /etc/crypttab..."
+printf "${LVM_LUKS}\tUUID=%s\tnone\tluks\n" "$(cryptsetup luksUUID $PART_LUKS)" | tee -a /mnt/etc/crypttab
+cat /mnt/etc/crypttab
 
 # fstab
 echo "[*] Generating fstab file and setting the 'noatime' property..."
@@ -274,36 +292,28 @@ genfstab -U /mnt > /mnt/etc/fstab
 sed -i 's/relatime/noatime/g' /mnt/etc/fstab
 sleep 2
 
-# German keyboard layout
+# mkinitcpio
+echo "[*] Adding the LUKS partition to /etc/crypttab..."
+printf "${LVM_LUKS}\tUUID=%s\tnone\tluks\n" "$(cryptsetup luksUUID $PART_LUKS)" | tee -a /mnt/etc/crypttab
+cat /mnt/etc/crypttab
+
+echo "[*] Rebuilding initramfs image using mkinitcpio..."
+echo "MODULES=()" > /mnt/etc/mkinitcpio.conf
+echo "BINARIES=()" >> /mnt/etc/mkinitcpio.conf
+echo "HOOKS=(autodetect base block encrypt filesystems fsck keyboard kms lvm2 modconf udev)" >> /mnt/etc/mkinitcpio.conf
+arch-chroot /mnt /bin/bash -c "\
+    mkinitcpio -p $KERNEL"
+sleep 2
+
+# Keyboard layout
 echo "[*] Loading German keyboard layout..."
 arch-chroot /mnt /bin/bash -c "\
     loadkeys de-latin1;\
     localectl set-keymap de"
 sleep 2
 
-# Network time synchronisation
-echo "[*] Enabling network time synchronization..."
-arch-chroot /mnt /bin/bash -c "\
-    timedatectl set-ntp true"
-sleep 2
-
-# System update
-echo "[*] Updating the system..."
-arch-chroot /mnt /bin/bash -c "\
-    pacman --disable-download-timeout --noconfirm -Scc;\
-    pacman --disable-download-timeout --noconfirm -Syyu"
-sleep 2
-
-# Time
-echo "[*] Setting the timezone & hardware clock..."
-arch-chroot /mnt /bin/bash -c "\
-    timedatectl set-timezone Europe/Berlin;\
-    ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime;\
-    hwclock --systohc --utc"
-sleep 2
-
-# Locale
-echo "[*] Initializing the locale..."
+# Setup locale
+echo "[*] Setting up the locale..."
 arch-chroot /mnt /bin/bash -c "\
     echo \"en_US.UTF-8 UTF-8\" > /etc/locale.gen;\
     locale-gen;\
@@ -312,15 +322,31 @@ arch-chroot /mnt /bin/bash -c "\
     echo \"KEYMAP=de-latin1\" > /etc/vconsole.conf;\
     echo \"FONT=lat9w-16\" >> /etc/vconsole.conf"
 
-# Network
-echo "[*] Setting hostname and /etc/hosts..."
+# Timezone & hardware clock
+echo "[*] Setting up the timezone & hardware clock..."
+arch-chroot /mnt /bin/bash -c "\
+    timedatectl set-timezone Europe/Berlin;\
+    ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime;\
+    hwclock --systohc --utc"
+sleep 2
+
+# Network time synchronisation
+echo "[*] Enabling network time synchronization..."
+arch-chroot /mnt /bin/bash -c "\
+    timedatectl set-ntp true"
+sleep 2
+
+# Update system
+echo "[*] Updating the system..."
+arch-chroot /mnt /bin/bash -c "\
+    pacman --disable-download-timeout --noconfirm -Scc;\
+    pacman --disable-download-timeout --noconfirm -Syyu"
+sleep 2
+
+# Setup the hostname & /etc/hosts
+echo "[*] Setting up the hostname and /etc/hosts..."
 echo $HOSTNAME > /mnt/etc/hostname
 echo "127.0.0.1 localhost" > /mnt/etc/hosts
 echo "::1 localhost" >> /mnt/etc/hosts
 arch-chroot /mnt /bin/bash -c "\
     systemctl enable dhcpcd"
-
-# mkinitcpio
-echo "[*] Adding the LUKS partition to /etc/crypttab..."
-printf "${LVM_LUKS}\tUUID=%s\tnone\tluks\n" "$(cryptsetup luksUUID $PART_LUKS)" | tee -a /mnt/etc/crypttab
-cat /mnt/etc/crypttab
