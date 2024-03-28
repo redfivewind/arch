@@ -1,12 +1,9 @@
-#AUDIO: Yes/No
-#DESKTOP: -, Hyprland, XFCE
-#GPU: AMD/ATI, Intel, NVIDIA
 #HYPERVISOR: -, KVM, XEN
-#LOCALE: en_US.UTF-8?
 #NETWORKING: ???
-#PLATFORM: BIOS or UEFI
+#GPU: AMD/ATI, Intel, NVIDIA
+#DESKTOP: -, Hyprland, XFCE
+#AUDIO: Yes/No
 #SECURITY: EDR, Disable shell history, ...
-#TIME: Date format, Timezone
 
 # Start message
 echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
@@ -28,7 +25,7 @@ USER_NAME="user"
 USER_PASS=""
 
 # Retrieve the platform
-'''echo "[*] Please enter the target platform ('bios' or 'uefi')..."
+echo "[*] ..."
 read platform
 
 if [ -z "$platform" ];
@@ -48,7 +45,7 @@ else
         echo "[X] ERROR: The entered target platform is "$platform" but must be 'bios' or 'uefi'. Exiting..."
         exit 1
     fi
-fi'''
+fi
 
 # Retrieve the LUKS password
 echo "[*] Please enter the LUKS password: "
