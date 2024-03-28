@@ -1,7 +1,3 @@
-#NETWORKING: ???
-#GPU: AMD/ATI, Intel, NVIDIA
-#DESKTOP: -, Hyprland, XFCE
-#AUDIO: Yes/No
 #SECURITY: EDR, Disable shell history, ...
 
 # Start message
@@ -10,20 +6,26 @@ read
 
 # Initialise global variables
 echo "[*] Initialising global variables..."
+AUDIO=""
+DESKTOP=""
 DISK=""
+GPU_AMD=""
+GPU_INTEL=""
+GPU_NVIDIA=""
 KERNEL="linux-hardened"
 LUKS_LVM="luks_lvm"
 LUKS_PASS=""
 LV_ROOT="lv_root"
 LV_SWAP="lv_swap"
 LVM_VG="lvm_vg"
+NETWORKING=""
 PART_EFI=""
 PART_LUKS=""
 UEFI=""
 USER_NAME="user"
 USER_PASS=""
 
-# Retrieve the platform
+# Select the target platform (BIOS or UEFI)
 echo "[*] Please enter the target plaform ('bios' or 'uefi')..."
 read platform
 
@@ -46,7 +48,7 @@ else
     fi
 fi
 
-# Retrieve the hypervisor
+# Select the hypervisor (KVM or Xen)
 echo "[*] Please enter the hypervisor ('kvm' or 'xen')..."
 read hypervisor
 
@@ -68,6 +70,18 @@ else
         exit 1
     fi
 fi
+
+# Enable/disable networking
+#FIXME
+
+# Enable/disable (proprietary) GPU drivers
+#FIXME
+
+# Enable/disable audio
+#FIXME
+
+# Select the desktop environment (optional)
+#FIXME
 
 # Retrieve the LUKS password
 echo "[*] Please enter the LUKS password: "
