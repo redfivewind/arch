@@ -25,6 +25,7 @@ PART_LUKS=""
 UEFI=""
 USER_NAME="user"
 USER_PASS=""
+XEN=""
 
 # Select the target platform (BIOS or UEFI)
 echo "[*] Please select the target plaform ('bios' or 'uefi')..."
