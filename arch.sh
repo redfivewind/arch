@@ -26,62 +26,150 @@ USER_NAME="user"
 USER_PASS=""
 
 # Select the target platform (BIOS or UEFI)
-echo "[*] Please enter the target plaform ('bios' or 'uefi')..."
+echo "[*] Please select the target plaform ('bios' or 'uefi')..."
 read platform
+platform="${platform,,}"
 
-if [ -z "$platform" ];
+if [ "$platform" == "bios" ];
 then
-    echo "[X] ERROR: The entered target platform is empty. Exiting..."
-    exit 1
+    echo "[*] Platform: '$platform'..."
+    UEFI=0
+elif [ "$platform" == "uefi" ];
+then
+    echo "[*] Platform: '$platform'..."
+    UEFI=1
 else
-    if [ "$platform" == "bios" ];
-    then
-        echo "[*] Platform: '$platform'..."
-        UEFI=0
-    elif [ "$platform" == "uefi" ];
-    then
-        echo "[*] Platform: '$platform'..."
-        UEFI=1
-    else
-        echo "[X] ERROR: The entered target platform is "$platform" but must be 'bios' or 'uefi'. Exiting..."
-        exit 1
-    fi
+    echo "[X] ERROR: Variable 'platform' is "$platform" but must be 'bios' or 'uefi'. Exiting..."
+    exit 1
 fi
 
 # Select the hypervisor (KVM or Xen)
-echo "[*] Please enter the hypervisor ('kvm' or 'xen')..."
+echo "[*] Please select the hypervisor ('kvm' or 'xen')..."
 read hypervisor
+hypervisor="${hypervisor,,}"
 
-if [ -z "$hypervisor" ];
+if [ "$hypervisor" == "kvm" ];
 then
-    echo "[X] ERROR: The entered hypervisor is empty. Exiting..."
-    exit 1
+    echo "[*] Hypervisor: '$hypervisor'..."
+    XEN=0
+elif [ "$hypervisor" == "uefi" ];
+then
+    echo "[*] Hypervisor: '$hypervisor'..."
+    XEN=1
 else
-    if [ "$hypervisor" == "kvm" ];
-    then
-        echo "[*] Hypervisor: '$hypervisor'..."
-        XEN=0
-    elif [ "$hypervisor" == "uefi" ];
-    then
-        echo "[*] Hypervisor: '$hypervisor'..."
-        XEN=1
-    else
-        echo "[X] ERROR: The entered hypervisor is "$hypervisor" but must be 'kvm' or 'xen'. Exiting..."
-        exit 1
-    fi
+    echo "[X] ERROR: Variable 'hypervisor' is "$hypervisor" but must be 'kvm' or 'xen'. Exiting..."
+    exit 1
 fi
 
 # Enable/disable networking
-#FIXME
+echo "[*] Enable networking? (yes/no)
+read networking
+networking="${networking,,}"
+
+if [ "$networking" == "no" ];
+then
+    echo "[*] Networking enabled: '$networking'"
+    NETWORKING=0
+elif [ "$networking" == "yes" ];
+then
+    echo "[*] Networking enabled: '$networking'"
+    NETWORKING=1
+else
+    echo "[X] ERROR: Variable 'networking' is '$networking' but must be 'yes' or 'no'. Exiting..."
+    exit 1
+fi
 
 # Enable/disable (proprietary) GPU drivers
-#FIXME
+echo "[*] Enable AMD GPU drivers? (yes/no)
+read gpu_amd
+gpu_amd="${gpu_amd,,}"
+
+if [ "$gpu_amd" == "no" ];
+then
+    echo "[*] AMD GPU drivers enabled: '$gpu_amd'"
+    GPU_AMD=0
+elif [ "$gpu_amd" == "yes" ];
+then
+    echo "[*] AMD GPU drivers enabled: '$gpu_amd'"
+    GPU_AMD=1
+else
+    echo "[X] ERROR: Variable 'gpu_amd' is '$gpu_amd' but must be 'yes' or 'no'. Exiting..."
+    exit 1
+fi
+
+echo "[*] Enable Intel GPU drivers? (yes/no)
+read gpu_intel
+gpu_intel="${gpu_intel,,}"
+
+if [ "$gpu_intel" == "no" ];
+then
+    echo "[*] Intel GPU drivers enabled: '$gpu_intel'"
+    GPU_INTEL=0
+elif [ "$gpu_intel" == "yes" ];
+then
+    echo "[*] Intel GPU drivers enabled: '$gpu_intel'"
+    GPU_INTEL=1
+else
+    echo "[X] ERROR: Variable 'gpu_intel' is '$gpu_intel' but must be 'yes' or 'no'. Exiting..."
+    exit 1
+fi
+
+echo "[*] Enable NVIDIA GPU drivers? (yes/no)
+read gpu_nvidia
+gpu_nvidia="${gpu_nvidia,,}"
+
+if [ "$gpu_nvidia" == "no" ];
+then
+    echo "[*] NVIDIA GPU drivers enabled: '$gpu_nvidia'"
+    GPU_NVIDIA=0
+elif [ "$gpu_nvidia" == "yes" ];
+then
+    echo "[*] NVIDIA GPU drivers enabled: '$gpu_nvidia'"
+    GPU_NVIDIA=1
+else
+    echo "[X] ERROR: Variable 'gpu_nvidia' is '$gpu_nvidia' but must be 'yes' or 'no'. Exiting..."
+    exit 1
+fi
 
 # Enable/disable audio
-#FIXME
+echo "[*] Enable audio? (yes/no)"
+read audio
+audio="${audio,,}"
+
+if [ "$audio" == "no" ];
+then
+    echo "[*] Audio enabled: '$audio'"
+    AUDIO=0
+elif [ "$audio" == "yes" ];
+then
+    echo "[*] Audio enabled: '$audio'"
+    AUDIO=1
+else
+    echo "[X] ERROR: Variable 'audio' is '$audio' but must be 'yes' or 'no'. Exiting..."
+    exit 1
+fi
 
 # Select the desktop environment (optional)
-#FIXME
+echo "[*] Please select the desktop environment ('-', 'hyprland' or 'xfce')..."
+read desktop
+desktop="${desktop,,}"
+
+if [ "$desktop" == "none" ];
+then
+    echo "[*] Desktop: '$desktop'"
+    DESKTOP="$desktop"
+elif [ "$desktop" == "hyprland" ];
+then
+    echo "[*] Desktop: '$desktop'"
+    DESKTOP="$desktop"
+elif [ "$desktop" == "xfce" ];
+then
+    echo "[*] Desktop: '$desktop'"
+    DESKTOP="$desktop"
+else
+    echo "[X] ERROR: Variable 'desktop' is '$desktop' but must be '-', 'hyprland' or 'xfce'. Exiting..."
+    exit 1
+fi
 
 # Retrieve the LUKS password
 echo "[*] Please enter the LUKS password: "
@@ -109,14 +197,14 @@ else
     exit 1
 fi
 
+# Network time synchronisation
+echo "[*] Enabling network time synchronization..."
+timedatectl set-ntp true
+
 # Update the pacman database
 echo "[*] Updating the pacman database..."
 pacman --disable-download-timeout --noconfirm -Scc
 pacman --disable-download-timeout --noconfirm -Syy
-
-# Network time synchronisation
-echo "[*] Enabling network time synchronization..."
-timedatectl set-ntp true
 
 # Partition the disk
 echo "[*] Partitioning the disk..."
