@@ -325,7 +325,6 @@ parted $DISK print
 
 # SETUP LUKS
 echo "[*] Setting up LUKS..."
-echo "[*] Formatting the second partition as LUKS crypto partition..."
 echo -n $LUKS_PASS | cryptsetup luksFormat $PART_LUKS --type luks1 -c twofish-xts-plain64 -h sha512 -s 512 --iter-time 10000 -
 echo -n $LUKS_PASS | cryptsetup luksOpen $PART_LUKS $LVM_LUKS -
 sleep 2
