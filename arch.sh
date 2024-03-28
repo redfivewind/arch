@@ -1,5 +1,6 @@
 #REGION: Keyboard, Locale, Timezone
 #SECURITY: EDR, Disable shell history, ...
+#YAY
 
 # Start message
 echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
