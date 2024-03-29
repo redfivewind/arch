@@ -1,3 +1,4 @@
+#CUSTOMISATION: srm
 #LAPTOP: TLP, Suspend/Hibernate
 #REGION: Locale - Timezone - Keyboard
 #SECURITY: EDR, Disable shell history, rkhunter/chkrootkit
