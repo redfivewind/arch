@@ -373,22 +373,50 @@ echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
 pacstrap /mnt \
     amd-ucode \
     base \
+    bridge-utils \
+    ebtables \
+    edk2-ovmf \
     gptfdisk \
     gvfs \ 
     intel-ucode \
     iptables-nft \ #FIXME
     $KERNEL \
+    libguestfs \
     linux-firmware \
     lvm2 \
     mkinitcpio \
     nano \
     p7zip \
     rkhunter \ #FIXME
+    seabios \
     sudo \
     tlp \ #FIXME
     unzip \
+    virt-manager \
+    virt-viewer \
     zip
 sleep 2
+
+# SETUP HYPERVISOR
+echo "[*] Configuring libvirtd..."
+echo "unix_sock_group = \"libvirt\"" | sudo tee -a /etc/libvirt/libvirtd.conf
+echo "unix_sock_rw_perms = \"0770\"" | sudo tee -a /etc/libvirt/libvirtd.conf
+
+if [ "$XEN" == 0 ];
+then
+    echo "[*] Installing required packages for the KVM virtualisation infrastructure..."
+    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S 
+    #dnsmasq openbsd-netcat vde2    
+
+    echo "[*] Configuring services for the KVM virtualisation infrastructure..."
+    chroot /mnt systemctl enable libvirtd.service
+elif [ "$XEN" == 1 ];
+then
+    echo "[*] Installing required packages for the Xen virtualisation infrastructure..."
+else
+    echo "[X] ERROR: Variable 'XEN' is '$XEN' but must be 0 or 1. Exiting..."
+    exit 1
+fi
 
 # SETUP NETWORKING
 if [ "$NETWORKING" == 0 ];
@@ -512,8 +540,42 @@ then
     #FIXME
 elif [ "$UEFI" == 1 ];
 then
-    echo "[*] ..."
-    #FIXME
+    echo "[*] Installing required packages for the UEFI platform..."
+    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S efibootmgr sbctl
+    
+    echo "[*] Generating signing keys using sbctl..."
+    chroot /mnt sbctl create-keys
+
+    echo "[*] Enrolling the signing keys using sbctl..."
+    chroot /mnt sbctl enroll-keys --ignore-immutable --microsoft
+
+    echo "[*] Generating a unified kernel image (UKI) for the UEFI platform..."
+    chroot /mnt sbctl bundle \
+        --amducode /boot/amd-ucode.img \
+        --cmdline /etc/kernel/cmdline \
+        --efi-stub /usr/lib/systemd/boot/efi/linuxx64.efi.stub \
+        --esp /boot/efi \
+        --initramfs /boot/initramfs-hardened \
+        --intelucode /boot/intel-ucode.img \
+        --kernel-img /boot/vmlinuz-hardened \
+        --os-release /etc/os-release \
+        --save \
+        /boot/efi/EFI/alpine.efi
+    chroot /mnt sbctl list-bundles
+
+    echo "[*] Generating a UEFI boot entry..."
+    efibootmgr --create --disk $DISK --part 1 --label 'arch-linux' --loader '\EFI\arch-linux.efi' --unicode
+
+    if [ "$XEN" == 0 ];
+    then
+        echo "[*] Skipping Xen boot configuration because Xen is not the selected hypervisor..."
+    elif [ "$XEN" == 1 ];
+    then
+        #FIXME
+    else
+        echo "[X] ERROR: Variable 'XEN' is '$XEN' but must be 0 or 1. Exiting..."
+        exit 1
+    fi
 else
     echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
     exit 1
@@ -522,8 +584,8 @@ fi
 # UPDATE SYSTEM
 echo "[*] Updating the system..."
 arch-chroot /mnt /bin/bash -c "\
-    pacman --disable-download-timeout --noconfirm -Scc;\
-    pacman --disable-download-timeout --noconfirm -Syyu"
+    pacman --disable-download-timeout --needed --noconfirm -Scc;\
+    pacman --disable-download-timeout --needed --noconfirm -Syyu"
 sleep 2
 
 # SETUP TIME
@@ -557,8 +619,7 @@ sleep 2
 
 # USER MANAGEMENT
 echo "[*] Adding the home user '$USER_NAME'..."
-arch-chroot /mnt /bin/bash -c "\
-    useradd -m -G wheel,users $USER_NAME"
+arch-chroot /mnt /bin/bash -c "useradd -m -G libvirtd,users,wheel $USER_NAME"
 
 echo "[*] Granting sudo rights to the home user..."
 echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
