@@ -1,5 +1,6 @@
+#LAPTOP: TLP, Suspend/Hibernate
 #REGION: Locale - Timezone - Keyboard
-#SECURITY: EDR, Disable shell history, ...
+#SECURITY: EDR, Disable shell history, rkhunter/chkrootkit
 #YAY
 
 # START MESSAGE
@@ -379,18 +380,17 @@ pacstrap /mnt \
     gptfdisk \
     gvfs \ 
     intel-ucode \
-    iptables-nft \ #FIXME
+    iptables-nft \
     $KERNEL \
     libguestfs \
+    libvirt \
     linux-firmware \
     lvm2 \
     mkinitcpio \
     nano \
     p7zip \
-    rkhunter \ #FIXME
     seabios \
     sudo \
-    tlp \ #FIXME
     unzip \
     virt-manager \
     virt-viewer \
@@ -401,15 +401,13 @@ sleep 2
 echo "[*] Configuring libvirtd..."
 echo "unix_sock_group = \"libvirt\"" | sudo tee -a /etc/libvirt/libvirtd.conf
 echo "unix_sock_rw_perms = \"0770\"" | sudo tee -a /etc/libvirt/libvirtd.conf
+chroot /mnt systemctl enable libvirtd.service
+#dnsmasq openbsd-netcat vde2
 
 if [ "$XEN" == 0 ];
 then
     echo "[*] Installing required packages for the KVM virtualisation infrastructure..."
-    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S 
-    #dnsmasq openbsd-netcat vde2    
-
-    echo "[*] Configuring services for the KVM virtualisation infrastructure..."
-    chroot /mnt systemctl enable libvirtd.service
+    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S qemu-base   
 elif [ "$XEN" == 1 ];
 then
     echo "[*] Installing required packages for the Xen virtualisation infrastructure..."
@@ -619,7 +617,10 @@ sleep 2
 
 # USER MANAGEMENT
 echo "[*] Adding the home user '$USER_NAME'..."
-arch-chroot /mnt /bin/bash -c "useradd -m -G libvirtd,users,wheel $USER_NAME"
+useradd --root /mnt -m $USER
+useradd --root /mnt --append --groups libvirtd $USER
+useradd --root /mnt --append --groups users $USER
+useradd --root /mnt --append --groups wheel $USER
 
 echo "[*] Granting sudo rights to the home user..."
 echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
