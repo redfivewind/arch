@@ -182,7 +182,7 @@ echo "[*] Retrieving available disks..."
 echo
 lsblk
 echo
-echo "[*] Please select the disk: "
+echo "[*] Please select the disk where Arch Linux should be installed into: "
 read disk
 
 if [ -z "$disk" ];
@@ -400,8 +400,8 @@ sleep 2
 
 # SETUP HYPERVISOR
 echo "[*] Configuring libvirtd..."
-echo "unix_sock_group = \"libvirt\"" | sudo tee -a /etc/libvirt/libvirtd.conf
-echo "unix_sock_rw_perms = \"0770\"" | sudo tee -a /etc/libvirt/libvirtd.conf
+echo "unix_sock_group = \"libvirt\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
+echo "unix_sock_rw_perms = \"0770\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
 chroot /mnt systemctl enable libvirtd.service
 #dnsmasq openbsd-netcat vde2
 
@@ -412,6 +412,7 @@ then
 elif [ "$XEN" == 1 ];
 then
     echo "[*] Installing required packages for the Xen virtualisation infrastructure..."
+    chroot /mnt yay --disable-download-timeout --needed --noconfirm -S xen xen-qemu
 else
     echo "[X] ERROR: Variable 'XEN' is '$XEN' but must be 0 or 1. Exiting..."
     exit 1
@@ -535,8 +536,25 @@ echo "[*] Setting up the boot environment..."
 
 if [ "$UEFI" == 0 ];
 then
-    echo "[*] ..."
-    #FIXME
+    echo "[*] Installing GRUB2..."
+    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S grub
+
+    echo "[*] Preapring GRUB2 to support booting from the LUKS partition..."
+    echo "GRUB_ENABLE_CRYPTODISK=y" >> /mnt/etc/default/grub
+    sed -i 's/GRUB_CMDLINE_LINUX=""/#GRUB_CMDLINE_LINUX=""/' /mnt/etc/default/grub
+    echo "GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LVM_LUKS root=/dev/$VG_LUKS/$LV_ROOT\"" >> /mnt/etc/default/grub
+    echo "GRUB_PRELOAD_MODULES=\"cryptodisk part_msdos\"" >> /mnt/etc/default/grub
+    tail /mnt/etc/default/grub
+    sleep 2
+
+    echo "[*] Rebuilding the initial ramdisk..."
+    chroot /mnt mkinitcpio -P $KERNEL
+
+    echo "[*] Installing & configuring GRUB2..."
+    chroot /mnt grub-install $DISK
+    chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+    sleep 2
+    
 elif [ "$UEFI" == 1 ];
 then
     echo "[*] Installing required packages for the UEFI platform..."
@@ -559,7 +577,7 @@ then
         --kernel-img /boot/vmlinuz-hardened \
         --os-release /etc/os-release \
         --save \
-        /boot/efi/EFI/alpine.efi
+        /boot/efi/EFI/arch-linux.efi
     chroot /mnt sbctl list-bundles
 
     echo "[*] Generating a UEFI boot entry..."
