@@ -674,11 +674,64 @@ then
 elif [ "$DESKTOP" == "hyprland" ];
 then
     echo "[*] Installing desktop environment Hyprland..."
-    #FIXME
+    chroot /mnt yay --disable-download-timeout --needed --noconfirm -S \
+        dunst \
+        greetd-tuigreet \
+        hyprland-git \
+        rofi \
+        waybar
+
+    echo "[*] Configuring desktop environment Hyprland..."
+    #Display manager
+    #tuigreet
+    #Screen resolution
+    #Screen brightness
+    #Waybar
+    #Power control (e.g., nwg-bar)
+    #Notification Manager: dunst
+    #Application launcher (e.g., rofi)
+    #Keyboard shortcuts
+    #Swaylock & swayidle
+    #Turn off screen automatically
+    #Clipboard
+    #File manager
+    #Polkit authentication
+    #Keyboard layout
+    #Wallpaper
 elif [ "$DESKTOP" == "xfce" ];
 then
     echo "[*] Installing desktop environment XFCE..."
-    #FIXME
+    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S \
+        archlinux-wallpaper \
+        light-locker \
+        lightdm \
+        lightdm-gtk-greeter \
+        lightdm-gtk-greeter-settings \
+        mousepad \
+        network-manager-applet \ #FIXME
+        ristretto \
+        thunar-archive-plugin \
+        xarchiver \
+        xfce-polkit \
+        xfce4 \
+        xfce4-cpugraph-plugin \
+        xfce4-notifyd \
+        xfce4-pulseaudio-plugin \ #FIXME
+        xfce4-screenshooter \
+        xfce4-taskmanager \
+        xfce4-whiskermenu-plugin \
+        xorg \
+        xorg-drivers       
+        
+    echo "[*] Configuring desktop environment XFCE..."
+    #export DISPLAY=:0
+    #export $(dbus-launch)
+    chroot /mnt xfconf-query -c xfce4-session -p /general/LockCommand -s "light-locker-command -l"
+    chroot /mnt xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita-dark"
+    chroot /mnt xfce4-settings-manager --reload
+    #Wallpaper
+
+    chroot /mnt systemctl enable lightdm.service
 else
     echo "[*] Variable 'DESKTOP' is '$DESKTOP' but must be '-*, 'hyprland' or 'xfce'. Exiting..."
     exit 1
