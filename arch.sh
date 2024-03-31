@@ -2,6 +2,7 @@
 #LAPTOP: TLP, Suspend/Hibernate
 #REGION: Locale - Timezone - Keyboard
 #SECURITY: EDR, Disable shell history, rkhunter/chkrootkit
+#YAY
 
 # START MESSAGE
 echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
@@ -394,7 +395,6 @@ pacstrap /mnt \
     unzip \
     virt-manager \
     virt-viewer \
-    yay-bin \
     zip
 sleep 2
 
@@ -684,20 +684,23 @@ then
     echo "[*] Configuring desktop environment Hyprland..."
     #Display manager
     #tuigreet
+    
     #Screen resolution
     #Screen brightness
+    #Turn off screen automatically
+    #Swaylock & swayidle
+    
     #Waybar
     #Power control (e.g., nwg-bar)
     #Notification Manager: dunst
     #Application launcher (e.g., rofi)
-    #Keyboard shortcuts
-    #Swaylock & swayidle
-    #Turn off screen automatically
     #Clipboard
     #File manager
     #Polkit authentication
+
+    #Keyboard shortcuts
     #Keyboard layout
-    #Wallpaper
+    #Wallpaper    
 elif [ "$DESKTOP" == "xfce" ];
 then
     echo "[*] Installing desktop environment XFCE..."
@@ -726,10 +729,10 @@ then
     echo "[*] Configuring desktop environment XFCE..."
     #export DISPLAY=:0
     #export $(dbus-launch)
-    chroot /mnt xfconf-query -c xfce4-session -p /general/LockCommand -s "light-locker-command -l"
-    chroot /mnt xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita-dark"
+    chroot /mnt xfconf-query -c xfce4-session -p /general/LockCommand -s "light-locker-command -l" #FIXME
+    chroot /mnt xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita-dark" #FIXME
     chroot /mnt xfce4-settings-manager --reload
-    #Wallpaper
+    #Wallpaper #FIXME
 
     chroot /mnt systemctl enable lightdm.service
 else
