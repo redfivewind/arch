@@ -2,7 +2,6 @@
 #LAPTOP: TLP, Suspend/Hibernate
 #REGION: Locale - Timezone - Keyboard
 #SECURITY: EDR, Disable shell history, rkhunter/chkrootkit
-#YAY
 
 # START MESSAGE
 echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
@@ -409,10 +408,16 @@ if [ "$XEN" == 0 ];
 then
     echo "[*] Installing required packages for the KVM virtualisation infrastructure..."
     chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S qemu-base   
+
+    echo "[*] Configuring the KVM virtualisation infrastructure..."
+    #FIXME
 elif [ "$XEN" == 1 ];
 then
     echo "[*] Installing required packages for the Xen virtualisation infrastructure..."
     chroot /mnt yay --disable-download-timeout --needed --noconfirm -S xen xen-qemu
+
+    echo "[*] Configuring the Xen virtualisation infrastructure..."
+    #FIXME
 else
     echo "[X] ERROR: Variable 'XEN' is '$XEN' but must be 0 or 1. Exiting..."
     exit 1
@@ -517,7 +522,7 @@ printf "${LVM_LUKS}\tUUID=%s\tnone\tluks\n" "$(cryptsetup luksUUID $PART_LUKS)" 
 cat /mnt/etc/crypttab
 
 # SETUP /ETC/FSTAB
-echo "[*] Generating fstab file and setting the 'noatime' property..."
+echo "[*] Generating the /etc/fstab file and setting the 'noatime' property..."
 genfstab -U /mnt > /mnt/etc/fstab
 sed -i 's/relatime/noatime/g' /mnt/etc/fstab
 sleep 2
@@ -667,6 +672,16 @@ echo "\
 arch-chroot /mnt /bin/bash -c "\
     chown -R $USER_NAME:users /home/$USER_NAME"
 
+# INSTALL YAY
+git clone https://aur.archlinux.org/yay.git /mnt/home/$USER_NAME/tools
+chroot /mnt chown -R $USER_NAME:users /home/$USER_NAME/tools/yay
+arch-chroot /mnt /bin/bash -c "cd /home/$USER_NAME/tools/yay && makepkg -si"
+rm -r -f /home/$USER_NAME/tools/yay
+
+# INSTALL AUR PACKAGES
+chroot /mnt yay --disable-download-timeout --needed --noconfirm -S \
+    secure-delete
+
 # SETUP DESKTOP ENIVORNMENT
 if [ "$DESKTOP" == "-" ];
 then
@@ -711,7 +726,7 @@ then
         lightdm-gtk-greeter \
         lightdm-gtk-greeter-settings \
         mousepad \
-        network-manager-applet \ #FIXME
+        network-manager-applet \
         ristretto \
         thunar-archive-plugin \
         xarchiver \
@@ -719,20 +734,21 @@ then
         xfce4 \
         xfce4-cpugraph-plugin \
         xfce4-notifyd \
-        xfce4-pulseaudio-plugin \ #FIXME
+        xfce4-pulseaudio-plugin \
         xfce4-screenshooter \
         xfce4-taskmanager \
         xfce4-whiskermenu-plugin \
         xorg \
-        xorg-drivers       
+        xorg-drivers    
         
     echo "[*] Configuring desktop environment XFCE..."
     #export DISPLAY=:0
     #export $(dbus-launch)
     chroot /mnt xfconf-query -c xfce4-session -p /general/LockCommand -s "light-locker-command -l" #FIXME
     chroot /mnt xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita-dark" #FIXME
-    chroot /mnt xfce4-settings-manager --reload
     #Wallpaper #FIXME
+    #Keymap #FIXME
+    chroot /mnt xfce4-settings-manager --reload    
 
     chroot /mnt systemctl enable lightdm.service
 else
