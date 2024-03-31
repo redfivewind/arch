@@ -1,4 +1,3 @@
-#CUSTOMISATION: srm
 #LAPTOP: TLP, Suspend/Hibernate
 #REGION: Locale - Timezone - Keyboard
 #SECURITY: EDR, Disable shell history, rkhunter/chkrootkit
@@ -397,6 +396,10 @@ pacstrap /mnt \
     zip
 sleep 2
 
+# CONFIGURE SERVICES
+echo "[*] Configuring services..."
+#chroot /mnt
+
 # SETUP HYPERVISOR
 echo "[*] Configuring libvirtd..."
 echo "unix_sock_group = \"libvirt\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
@@ -430,8 +433,9 @@ then
 elif [ "$NETWORKING" == 1 ];
 then
     echo "[*] Installing required packages for networking..."
-    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S dhcpcd \
-        iwd
+    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S \
+        dhcpcd \
+        iwd \
         network-manager \
         net-tools
 
@@ -558,8 +562,7 @@ then
     echo "[*] Installing & configuring GRUB2..."
     chroot /mnt grub-install $DISK
     chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-    sleep 2
-    
+    sleep 2    
 elif [ "$UEFI" == 1 ];
 then
     echo "[*] Installing required packages for the UEFI platform..."
