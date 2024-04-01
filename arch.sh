@@ -193,10 +193,12 @@ then
 else
     DISK="$disk"
     
-    if [ -e "$DISK" ]; then
+    if [ -e "$DISK" ]; 
+    then
         echo "[*] Path '$DISK' exists."
     
-        if [ -b "$DISK" ]; then
+        if [ -b "$DISK" ];
+        then
             echo "[*] Path '$DISK' is a valid block device." 
     
             if [[ $DISK == "/dev/mmc*" ]]; 
@@ -207,7 +209,7 @@ else
                 then
                     PART_EFI="- (BIOS installation)"
                     PART_LUKS="${DISK}p1"
-                if [ "$UEFI" == 1 ];
+                elif [ "$UEFI" == 1 ];
                 then
                     PART_EFI="${DISK}p1"
                     PART_LUKS="${DISK}p2"
@@ -223,7 +225,7 @@ else
                 then
                     PART_EFI="- (BIOS installation)"
                     PART_LUKS="${DISK}p1"
-                if [ "$UEFI" == 1 ];
+                elif [ "$UEFI" == 1 ];
                 then
                     PART_EFI="${DISK}p1"
                     PART_LUKS="${DISK}p2"
@@ -236,7 +238,7 @@ else
                 then
                     PART_EFI="- (BIOS installation)"
                     PART_LUKS="${DISK}1"
-                if [ "$UEFI" == 1 ];
+                elif [ "$UEFI" == 1 ];
                 then
                     PART_EFI="${DISK}1"
                     PART_LUKS="${DISK}2"
