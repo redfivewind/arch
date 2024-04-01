@@ -312,7 +312,7 @@ then
 
     sync
 else
-    echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
+    echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. Exiting..."
     exit 1
 fi
 
