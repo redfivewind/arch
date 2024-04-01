@@ -3,6 +3,7 @@
 #REGION: Locale - Timezone - Keyboard
 #SECURITY: EDR, Disable shell history, rkhunter/chkrootkit
 #SHELL: busybox-ash, dash, dash-static-musl, ..?
+#USBGuard
 
 # START MESSAGE
 echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
