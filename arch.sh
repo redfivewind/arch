@@ -46,7 +46,7 @@ then
     echo "[*] Platform: '$platform'..."
     UEFI=1
 else
-    echo "[X] ERROR: Variable 'platform' is "$platform" but must be 'bios' or 'uefi'. Exiting..."
+    echo "[X] ERROR: Variable 'platform' is '$platform' but must be 'bios' or 'uefi'. Exiting..."
     exit 1
 fi
 
@@ -59,12 +59,12 @@ if [ "$hypervisor" == "kvm" ];
 then
     echo "[*] Hypervisor: '$hypervisor'..."
     XEN=0
-elif [ "$hypervisor" == "uefi" ];
+elif [ "$hypervisor" == "xen" ];
 then
     echo "[*] Hypervisor: '$hypervisor'..."
     XEN=1
 else
-    echo "[X] ERROR: Variable 'hypervisor' is "$hypervisor" but must be 'kvm' or 'xen'. Exiting..."
+    echo "[X] ERROR: Variable 'hypervisor' is '$hypervisor' but must be 'kvm' or 'xen'. Exiting..."
     exit 1
 fi
 
