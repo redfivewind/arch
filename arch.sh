@@ -161,7 +161,7 @@ echo "[*] Please select the desktop environment ('-', 'hyprland' or 'xfce'): "
 read desktop
 desktop="${desktop,,}"
 
-if [ "$desktop" == "none" ];
+if [ "$desktop" == "-" ];
 then
     echo "[*] Desktop: '$desktop'"
     DESKTOP="$desktop"
