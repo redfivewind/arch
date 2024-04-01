@@ -493,10 +493,14 @@ fi
 # SETUP AUDIO
 if [ "$AUDIO" == 0 ];
 then
-    #FIXME
+    echo "[*] Skipping audio configuration because audio functionality is disabled."
 elif [ "$AUDIO" == 1 ];
 then
-    #FIXME
+    echo "[*] Installing required packages for audio functionality..."
+    chroot /mnt --disable-download-timeout --needed --noconfirm -S \
+        pavucontrol \
+        pulseaudio \
+        pulseaudio-alsa
 else
     echo "[*] Variable 'AUDIO' is '$AUDIO' but must be 0 or 1. Exiting..."
     exit 1
