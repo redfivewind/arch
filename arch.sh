@@ -331,15 +331,15 @@ parted $DISK print
 # SETUP LUKS
 echo "[*] Setting up LUKS..."
 echo -n $LUKS_PASS | cryptsetup luksFormat $PART_LUKS --type luks1 -c twofish-xts-plain64 -h sha512 -s 512 --iter-time 10000 -
-echo -n $LUKS_PASS | cryptsetup luksOpen $PART_LUKS $LVM_LUKS -
+echo -n $LUKS_PASS | cryptsetup luksOpen $PART_LUKS $LUKS_LVM -
 sleep 2
 
 # SETUP LVM
 echo "[*] Setting up LVM..."
-pvcreate /dev/mapper/$LVM_LUKS
-vgcreate $VG_LUKS /dev/mapper/$LVM_LUKS
-lvcreate -L 6144M $VG_LUKS -n $LV_SWAP
-lvcreate -l 100%FREE $VG_LUKS -n $LV_ROOT
+pvcreate /dev/mapper/$LUKS_LVM
+vgcreate $LVM_VG /dev/mapper/$LUKS_LVM
+lvcreate -L 6144M $LVM_VG -n $LV_SWAP
+lvcreate -l 100%FREE $LVM_VG -n $LV_ROOT
 sleep 2
 
 # FORMAT & MOUNT PARTITIONS
@@ -531,7 +531,7 @@ sleep 2
 
 # SETUP /ETC/CRYPTTAB
 echo "[*] Adding the LUKS partition to /etc/crypttab..."
-printf "${LVM_LUKS}\tUUID=%s\tnone\tluks\n" "$(cryptsetup luksUUID $PART_LUKS)" | tee -a /mnt/etc/crypttab
+printf "${LUKS_LVM}\tUUID=%s\tnone\tluks\n" "$(cryptsetup luksUUID $PART_LUKS)" | tee -a /mnt/etc/crypttab
 cat /mnt/etc/crypttab
 
 # SETUP /ETC/FSTAB
@@ -560,7 +560,7 @@ then
     echo "[*] Preapring GRUB2 to support booting from the LUKS partition..."
     echo "GRUB_ENABLE_CRYPTODISK=y" >> /mnt/etc/default/grub
     sed -i 's/GRUB_CMDLINE_LINUX=""/#GRUB_CMDLINE_LINUX=""/' /mnt/etc/default/grub
-    echo "GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LVM_LUKS root=/dev/$VG_LUKS/$LV_ROOT\"" >> /mnt/etc/default/grub
+    echo "GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT\"" >> /mnt/etc/default/grub
     echo "GRUB_PRELOAD_MODULES=\"cryptodisk part_msdos\"" >> /mnt/etc/default/grub
     tail /mnt/etc/default/grub
     sleep 2
