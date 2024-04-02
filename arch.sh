@@ -243,6 +243,10 @@ echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
 pacstrap /mnt amd-ucode base bridge-utils dhcpcd ebtables edk2-ovmf gptfdisk gvfs intel-ucode iptables-nft iwd libguestfs libvirt linux-firmware linux-hardened lvm2 mkinitcpio nano networkmanager net-tools p7zip pavucontrol pulseaudio pulseaudio-alsa seabios sudo unzip virt-manager virt-viewer zip
 sleep 2
 
+# COPY /ETC/RESOLV.CONF INTO NEW SYSTEM
+echo "[*] Copying '/etc/resolv.conf' to '/mnt' to enable DNS resolution within the new system's root..."
+cp /etc/resolv.conf /mnt/etc/resolv.conf
+
 # MOUNT REQUIRED FILESYSTEMS
 echo "[*] Mounting required filesystems..."
 mount -t proc proc /mnt/proc
@@ -281,7 +285,7 @@ echo "MODULES=()" > /mnt/etc/mkinitcpio.conf
 echo "BINARIES=()" >> /mnt/etc/mkinitcpio.conf
 echo "HOOKS=(autodetect base block encrypt filesystems fsck keyboard kms lvm2 modconf udev)" >> /mnt/etc/mkinitcpio.conf
 arch-chroot /mnt /bin/bash -c "\
-    mkinitcpio -p $KERNEL"
+    mkinitcpio -p linux-hardened"
 sleep 2
 
 # SETUP BOOT ENVIRONMENT
