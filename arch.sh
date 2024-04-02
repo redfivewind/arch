@@ -1,6 +1,5 @@
 #FIREWALL: BLock everything
 #LAPTOP: TLP, Suspend/Hibernate
-#REGION: Locale - Timezone - Keyboard
 #SECURITY: EDR, Disable shell history, rkhunter/chkrootkit
 #SHELL: busybox-ash, dash, dash-static-musl, ..?
 #USBGuard
@@ -312,12 +311,15 @@ elif [ "$UEFI" == 1 ];
 then
     echo "[*] Installing required packages for the UEFI platform..."
     chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S efibootmgr sbctl
+    sleep 2
     
     echo "[*] Generating signing keys using sbctl..."
     chroot /mnt sbctl create-keys
+    sleep 2
 
     echo "[*] Enrolling the signing keys using sbctl..."
     chroot /mnt sbctl enroll-keys --ignore-immutable --microsoft
+    sleep 2
 
     echo "[*] Generating a unified kernel image (UKI) for the UEFI platform..."
     chroot /mnt sbctl bundle \
@@ -332,31 +334,26 @@ then
         --save \
         /boot/efi/EFI/arch-linux.efi
     chroot /mnt sbctl list-bundles
+    sleep 2
 
     echo "[*] Generating a UEFI boot entry..."
     efibootmgr --create --disk $DISK --part 1 --label 'arch-linux' --loader '\EFI\arch-linux.efi' --unicode
+    sleep 2
 else
     echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
     exit 1
 fi
 
-# SETUP HYPERVISOR
+# CONFIGURE LIBVIRTD
 echo "[*] Configuring libvirtd..."
 echo "unix_sock_group = \"libvirt\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
 echo "unix_sock_rw_perms = \"0770\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
 chroot /mnt systemctl enable libvirtd.service
-#dnsmasq openbsd-netcat vde2
 
-
-
-# SETUP NETWORKING
-
-    chroot /mnt systemctl enable dhcpcd
-    chroot /mnt systemctl enable NetworkManager.service
-else
-    echo "[*] Variable 'NETWORKING' is '$NETWORKING' but must be 0 or 1. Exiting..."
-    exit 1
-fi
+# CONFIGURE NETWORKING
+echo "[*] Configuring network services..."
+chroot /mnt systemctl enable dhcpcd
+chroot /mnt systemctl enable NetworkManager.service
 
 echo "[*] Setting up the hostname..."
 echo $HOSTNAME > /mnt/etc/hostname
@@ -364,40 +361,6 @@ echo $HOSTNAME > /mnt/etc/hostname
 echo "[*] Populating '/etc/hosts'..."
 echo "127.0.0.1 localhost" > /mnt/etc/hosts
 echo "::1 localhost" >> /mnt/etc/hosts
-
-'''# SETUP GPU
-if [ "$GPU_AMD" == 0 ];
-then
-    echo "[*] Skipping AMD/ATI GPU drivers..."
-elif [ "$GPU_AMD" == 1 ];
-then
-    #FIXME
-else
-    echo "[*] Variable 'GPU_AMD' is '$GPU_AMD' but must be 0 or 1. Exiting..."
-    exit 1
-fi
-
-if [ "$GPU_INTEL" == 0 ];
-then
-    echo "[*] Skipping Intel GPU drivers..."
-elif [ "$GPU_INTEL" == 1 ];
-then
-    #FIXME
-else
-    echo "[*] Variable 'GPU_INTEL' is '$GPU_INTEL' but must be 0 or 1. Exiting..."
-    exit 1
-fi
-
-if [ "$GPU_NVIDIA" == 0 ];
-then
-    echo "[*] Skipping NVIDIA GPU drivers..."
-elif [ "$GPU_NVIDIA" == 1 ];
-then
-    #FIXME
-else
-    echo "[*] Variable 'GPU_NVIDIA' is '$GPU_NVIDIA' but must be 0 or 1. Exiting..."
-    exit 1
-fi'''
 
 # SETUP LOCALE
 echo "[*] Setting up the locale..."
@@ -446,7 +409,6 @@ sleep 2
 echo "[*] Disabling the root account..."
 passwd --root /mnt --lock root
 
-# USER PATHS & SCRIPTS
 echo "[*] Adding user paths & scripts..."
 mkdir -p /mnt/home/$USER_NAME/tools
 mkdir -p /mnt/home/$USER_NAME/workspace
@@ -458,92 +420,7 @@ echo "\
     sudo chmod 4755 /opt/*/chrome-sandbox\n"\
 > /mnt/home/$USER_NAME/tools/update.sh
 
-arch-chroot /mnt /bin/bash -c "\
-    chown -R $USER_NAME:users /home/$USER_NAME"
-
-# INSTALL YAY
-git clone https://aur.archlinux.org/yay.git /mnt/home/$USER_NAME/tools
-chroot /mnt chown -R $USER_NAME:users /home/$USER_NAME/tools/yay
-arch-chroot /mnt /bin/bash -c "cd /home/$USER_NAME/tools/yay && makepkg -si"
-rm -r -f /home/$USER_NAME/tools/yay
-
-# INSTALL AUR PACKAGES
-chroot /mnt yay --disable-download-timeout --needed --noconfirm -S \
-    secure-delete
-
-# SETUP DESKTOP ENIVORNMENT
-if [ "$DESKTOP" == "-" ];
-then
-    echo "[*] No desktop environment was selected. Skipping..."
-elif [ "$DESKTOP" == "hyprland" ];
-then
-    echo "[*] Installing desktop environment Hyprland..."
-    chroot /mnt yay --disable-download-timeout --needed --noconfirm -S \
-        dunst \
-        greetd-tuigreet \
-        hyprland-git \
-        rofi \
-        waybar
-
-    echo "[*] Configuring desktop environment Hyprland..."
-    #Display manager
-    #tuigreet
-    
-    #Screen resolution
-    #Screen brightness
-    #Turn off screen automatically
-    #Swaylock & swayidle
-    
-    #Waybar
-    #Power control (e.g., nwg-bar)
-    #Notification Manager: dunst
-    #Application launcher (e.g., rofi)
-    #Clipboard
-    #File manager
-    #Polkit authentication
-
-    #Keyboard shortcuts
-    #Keyboard layout
-    #Wallpaper    
-elif [ "$DESKTOP" == "xfce" ];
-then
-    echo "[*] Installing desktop environment XFCE..."
-    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S \
-        archlinux-wallpaper \
-        light-locker \
-        lightdm \
-        lightdm-gtk-greeter \
-        lightdm-gtk-greeter-settings \
-        mousepad \
-        network-manager-applet \
-        ristretto \
-        thunar-archive-plugin \
-        xarchiver \
-        xfce-polkit \
-        xfce4 \
-        xfce4-cpugraph-plugin \
-        xfce4-notifyd \
-        xfce4-pulseaudio-plugin \
-        xfce4-screenshooter \
-        xfce4-taskmanager \
-        xfce4-whiskermenu-plugin \
-        xorg \
-        xorg-drivers    
-        
-    echo "[*] Configuring desktop environment XFCE..."
-    #export DISPLAY=:0
-    #export $(dbus-launch)
-    chroot /mnt xfconf-query -c xfce4-session -p /general/LockCommand -s "light-locker-command -l" #FIXME
-    chroot /mnt xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita-dark" #FIXME
-    #Wallpaper #FIXME
-    #Keymap #FIXME
-    chroot /mnt xfce4-settings-manager --reload    
-
-    chroot /mnt systemctl enable lightdm.service
-else
-    echo "[*] Variable 'DESKTOP' is '$DESKTOP' but must be '-*, 'hyprland' or 'xfce'. Exiting..."
-    exit 1
-fi
+chroot /mnt chown -R $USER_NAME:users /home/$USER_NAME
 
 # UNMOUNT FILESYSTEMS
 echo "[*] Unmounting filesystems..."
