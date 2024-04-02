@@ -430,4 +430,3 @@ umount -a
 # STOP MESSAGE
 echo "[*] Work done. Exiting..."
 exit 0
-
