@@ -290,20 +290,6 @@ sleep 2
 
 # SETUP BOOT ENVIRONMENT
 echo "[*] Setting up the boot environment..."
-    
-if [ "$UEFI" == 0 ];
-then
-    echo "[*] Skipping package 'efibootmgr'..."    
-elif [ "$UEFI" == 1 ];
-then
-    echo "[*] Installing package 'efibootmgr'..."
-    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S efibootmgr
-    sleep 2
-    
-else
-    echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
-    exit 1
-fi
 
 echo "[*] Installing GRUB2..."
 chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S grub
@@ -318,9 +304,27 @@ sleep 2
 
 echo "[*] Rebuilding the initial ramdisk..."
 chroot /mnt mkinitcpio -P $KERNEL
+    
+if [ "$UEFI" == 0 ];
+then
+    echo "[*] Skipping package 'efibootmgr'..."    
 
-echo "[*] Installing & configuring GRUB2..."
-chroot /mnt grub-install $DISK
+    echo "[*] Installing GRUB2 for platform BIOS..."
+    chroot /mnt grub-install $DISK
+elif [ "$UEFI" == 1 ];
+then
+    echo "[*] Installing package 'efibootmgr'..."
+    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S efibootmgr
+    sleep 2
+
+    echo "[*] Installing GRUB2 for platform UEFI..."
+    chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi   
+else
+    echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+echo "[*] Generating a GRUB2 configuration file..."
 chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 sleep 2
 
