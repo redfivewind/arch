@@ -386,7 +386,7 @@ pacstrap /mnt amd-ucode \
     gvfs \ 
     intel-ucode \
     iptables-nft \
-    $KERNEL \
+    "$KERNEL" \
     libguestfs \
     libvirt \
     linux-firmware \
