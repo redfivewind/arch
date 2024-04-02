@@ -377,29 +377,7 @@ pacman --disable-download-timeout --noconfirm -Syy
 
 # BOOTSTRAP SYSTEM
 echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
-pacstrap /mnt amd-ucode \
-    base \
-    bridge-utils \
-    ebtables \
-    edk2-ovmf \
-    gptfdisk \
-    gvfs \ 
-    intel-ucode \
-    iptables-nft \
-    "$KERNEL" \
-    libguestfs \
-    libvirt \
-    linux-firmware \
-    lvm2 \
-    mkinitcpio \
-    nano \
-    p7zip \
-    seabios \
-    sudo \
-    unzip \
-    virt-manager \
-    virt-viewer \
-    zip
+pacstrap /mnt amd-ucode base bridge-utils ebtables edk2-ovmf gptfdisk gvfs intel-ucode iptables-nft "$KERNEL" libguestfs libvirt linux-firmware lvm2 mkinitcpio nano p7zip seabios sudo unzip virt-manager virt-viewer zip
 sleep 2
 
 # CONFIGURE SERVICES
