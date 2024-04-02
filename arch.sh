@@ -290,13 +290,13 @@ sleep 2
 
 # SETUP BOOT ENVIRONMENT
 echo "[*] Setting up the boot environment..."
-
+    
 if [ "$UEFI" == 0 ];
 then
-        
+    echo "[*] Skipping package 'efibootmgr'..."    
 elif [ "$UEFI" == 1 ];
 then
-    echo "[*] Installing required packages for the UEFI platform..."
+    echo "[*] Installing package 'efibootmgr'..."
     chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S efibootmgr
     sleep 2
     
