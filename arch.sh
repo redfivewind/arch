@@ -293,71 +293,36 @@ echo "[*] Setting up the boot environment..."
 
 if [ "$UEFI" == 0 ];
 then
-    echo "[*] Installing GRUB2..."
-    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S grub
-
-    echo "[*] Preapring GRUB2 to support booting from the LUKS partition..."
-    echo "GRUB_ENABLE_CRYPTODISK=y" >> /mnt/etc/default/grub
-    sed -i 's/GRUB_CMDLINE_LINUX=""/#GRUB_CMDLINE_LINUX=""/' /mnt/etc/default/grub
-    echo "GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT\"" >> /mnt/etc/default/grub
-    echo "GRUB_PRELOAD_MODULES=\"cryptodisk part_msdos\"" >> /mnt/etc/default/grub
-    tail /mnt/etc/default/grub
-    sleep 2
-
-    echo "[*] Rebuilding the initial ramdisk..."
-    chroot /mnt mkinitcpio -P $KERNEL
-
-    echo "[*] Installing & configuring GRUB2..."
-    chroot /mnt grub-install $DISK
-    chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-    sleep 2    
+        
 elif [ "$UEFI" == 1 ];
 then
     echo "[*] Installing required packages for the UEFI platform..."
-    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S efibootmgr sbctl
+    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S efibootmgr
     sleep 2
     
-    echo "[*] Generating signing keys using sbctl..."
-    chroot /mnt sbctl create-keys
-    sleep 2
-
-    echo "[*] Enrolling the signing keys using sbctl..."
-    chroot /mnt sbctl enroll-keys --ignore-immutable --microsoft
-    sleep 2
-
-    echo "[*] Generating unified kernel images (UKI) for the UEFI platform..."
-    chroot /mnt sbctl bundle \
-        --amducode /boot/amd-ucode.img \
-        --cmdline /etc/kernel/cmdline \
-        --efi-stub /usr/lib/systemd/boot/efi/linuxx64.efi.stub \
-        --esp /boot/efi \
-        --initramfs /boot/initramfs-linux-hardened.img \
-        --intelucode /boot/intel-ucode.img \
-        --kernel-img /boot/vmlinuz-linux-hardened \
-        --os-release /etc/os-release \
-        --save \
-        /boot/efi/EFI/arch-linux.efi
-    '''chroot /mnt sbctl bundle \
-        --amducode /boot/amd-ucode.img \
-        --cmdline /etc/kernel/cmdline \
-        --efi-stub /usr/lib/systemd/boot/efi/linuxx64.efi.stub \
-        --esp /boot/efi \
-        --initramfs /boot/initramfs-linux-hardened-fallback.img \
-        --intelucode /boot/intel-ucode.img \
-        --kernel-img /boot/vmlinuz-linux-hardened \
-        --os-release /etc/os-release \
-        --save \
-        /boot/efi/EFI/arch-linux-fallback.efi'''
-    chroot /mnt sbctl list-bundles
-    sleep 2
-
-    echo "[*] Generating a UEFI boot entry..."
-    efibootmgr --create --disk $DISK --part 1 --label 'arch-linux' --loader '\EFI\arch-linux.efi' --unicode
-    sleep 2
 else
     echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
     exit 1
 fi
+
+echo "[*] Installing GRUB2..."
+chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S grub
+
+echo "[*] Preapring GRUB2 to support booting from the LUKS partition..."
+echo "GRUB_ENABLE_CRYPTODISK=y" >> /mnt/etc/default/grub
+sed -i 's/GRUB_CMDLINE_LINUX=""/#GRUB_CMDLINE_LINUX=""/' /mnt/etc/default/grub
+echo "GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT\"" >> /mnt/etc/default/grub
+echo "GRUB_PRELOAD_MODULES=\"cryptodisk part_msdos\"" >> /mnt/etc/default/grub
+tail /mnt/etc/default/grub
+sleep 2
+
+echo "[*] Rebuilding the initial ramdisk..."
+chroot /mnt mkinitcpio -P $KERNEL
+
+echo "[*] Installing & configuring GRUB2..."
+chroot /mnt grub-install $DISK
+chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+sleep 2
 
 # CONFIGURE LIBVIRTD
 echo "[*] Configuring libvirtd..."
