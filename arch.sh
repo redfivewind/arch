@@ -337,7 +337,7 @@ then
         --os-release /etc/os-release \
         --save \
         /boot/efi/EFI/arch-linux.efi
-    chroot /mnt sbctl bundle \
+    '''chroot /mnt sbctl bundle \
         --amducode /boot/amd-ucode.img \
         --cmdline /etc/kernel/cmdline \
         --efi-stub /usr/lib/systemd/boot/efi/linuxx64.efi.stub \
@@ -347,7 +347,7 @@ then
         --kernel-img /boot/vmlinuz-linux-hardened \
         --os-release /etc/os-release \
         --save \
-        /boot/efi/EFI/arch-linux-fallback.efi
+        /boot/efi/EFI/arch-linux-fallback.efi'''
     chroot /mnt sbctl list-bundles
     sleep 2
 
