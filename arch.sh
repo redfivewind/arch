@@ -84,7 +84,7 @@ else
                 fi
             elif [[ "$DISK" == "/dev/nvme*" ]]; 
             then
-                  echo "[*] Target disk seems to be a NVME disk."
+                echo "[*] Target disk seems to be a NVME disk."
     
                 if [ "$UEFI" == 0 ];
                 then
