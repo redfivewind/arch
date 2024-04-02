@@ -218,7 +218,7 @@ then
     echo "[*] Processing the EFI partition..."
     mkfs.vfat $PART_EFI
     mkdir -p /mnt/boot/efi
-    mount -t vfat $PART_EFI /mnt/boot/efi
+    mount $PART_EFI /mnt/boot/efi
     sleep 2
 else
     echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. Exiting..."
