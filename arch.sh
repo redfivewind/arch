@@ -400,6 +400,7 @@ echo "[*] Adding the home user '$USER_NAME'..."
 useradd --root /mnt -m $USER -G users
 usermod --root /mnt --append --groups libvirt $USER
 usermod --root /mnt --append --groups wheel $USER
+sleep 2
 
 echo "[*] Granting sudo rights to the home user..."
 echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
@@ -424,6 +425,8 @@ echo "\
 > /mnt/home/$USER_NAME/tools/update.sh
 
 chroot /mnt chown -R $USER_NAME:users /home/$USER_NAME
+
+sleep 2
 
 # UNMOUNT FILESYSTEMS
 echo "[*] Unmounting filesystems..."
