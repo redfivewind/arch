@@ -601,7 +601,7 @@ then
     echo "[*] Generating a UEFI boot entry..."
     efibootmgr --create --disk $DISK --part 1 --label 'arch-linux' --loader '\EFI\arch-linux.efi' --unicode
 
-    if [ "$XEN" == 0 ];
+    '''if [ "$XEN" == 0 ]; #FIXME
     then
         echo "[*] Skipping Xen boot configuration because Xen is not the selected hypervisor..."
     elif [ "$XEN" == 1 ];
@@ -610,7 +610,7 @@ then
     else
         echo "[X] ERROR: Variable 'XEN' is '$XEN' but must be 0 or 1. Exiting..."
         exit 1
-    fi
+    fi'''
 else
     echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
     exit 1
