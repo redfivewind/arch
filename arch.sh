@@ -459,7 +459,7 @@ echo "[*] Populating '/etc/hosts'..."
 echo "127.0.0.1 localhost" > /mnt/etc/hosts
 echo "::1 localhost" >> /mnt/etc/hosts
 
-# SETUP GPU
+'''# SETUP GPU
 if [ "$GPU_AMD" == 0 ];
 then
     echo "[*] Skipping AMD/ATI GPU drivers..."
@@ -491,7 +491,7 @@ then
 else
     echo "[*] Variable 'GPU_NVIDIA' is '$GPU_NVIDIA' but must be 0 or 1. Exiting..."
     exit 1
-fi
+fi'''
 
 # SETUP AUDIO
 if [ "$AUDIO" == 0 ];
