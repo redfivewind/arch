@@ -325,18 +325,29 @@ then
     chroot /mnt sbctl enroll-keys --ignore-immutable --microsoft
     sleep 2
 
-    echo "[*] Generating a unified kernel image (UKI) for the UEFI platform..."
+    echo "[*] Generating unified kernel images (UKI) for the UEFI platform..."
     chroot /mnt sbctl bundle \
         --amducode /boot/amd-ucode.img \
         --cmdline /etc/kernel/cmdline \
         --efi-stub /usr/lib/systemd/boot/efi/linuxx64.efi.stub \
         --esp /boot/efi \
-        --initramfs /boot/initramfs-hardened \
+        --initramfs /boot/initramfs-linux-hardened.img \
         --intelucode /boot/intel-ucode.img \
-        --kernel-img /boot/vmlinuz-hardened \
+        --kernel-img /boot/vmlinuz-linux-hardened \
         --os-release /etc/os-release \
         --save \
         /boot/efi/EFI/arch-linux.efi
+    chroot /mnt sbctl bundle \
+        --amducode /boot/amd-ucode.img \
+        --cmdline /etc/kernel/cmdline \
+        --efi-stub /usr/lib/systemd/boot/efi/linuxx64.efi.stub \
+        --esp /boot/efi \
+        --initramfs /boot/initramfs-linux-hardened-fallback.img \
+        --intelucode /boot/intel-ucode.img \
+        --kernel-img /boot/vmlinuz-linux-hardened \
+        --os-release /etc/os-release \
+        --save \
+        /boot/efi/EFI/arch-linux-(fallback).efi
     chroot /mnt sbctl list-bundles
     sleep 2
 
@@ -397,9 +408,9 @@ sleep 2
 
 # USER MANAGEMENT
 echo "[*] Adding the home user '$USER_NAME'..."
-useradd --root /mnt -m $USER -G users
-usermod --root /mnt --append --groups libvirt $USER
-usermod --root /mnt --append --groups wheel $USER
+useradd --root /mnt -m $USER_NAME -G users
+usermod --root /mnt --append --groups libvirt $USER_NAME
+usermod --root /mnt --append --groups wheel $USER_NAME
 sleep 2
 
 echo "[*] Granting sudo rights to the home user..."
