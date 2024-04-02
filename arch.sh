@@ -347,7 +347,7 @@ then
         --kernel-img /boot/vmlinuz-linux-hardened \
         --os-release /etc/os-release \
         --save \
-        /boot/efi/EFI/arch-linux-(fallback).efi
+        /boot/efi/EFI/arch-linux-fallback.efi
     chroot /mnt sbctl list-bundles
     sleep 2
 
