@@ -375,8 +375,7 @@ pacman --disable-download-timeout --noconfirm -Syy
 
 # BOOTSTRAP SYSTEM
 echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
-pacstrap /mnt \
-    amd-ucode \
+pacstrap /mnt amd-ucode \
     base \
     bridge-utils \
     ebtables \
