@@ -397,10 +397,9 @@ sleep 2
 
 # USER MANAGEMENT
 echo "[*] Adding the home user '$USER_NAME'..."
-useradd --root /mnt -m $USER
-useradd --root /mnt --append --groups libvirt $USER
-useradd --root /mnt --append --groups users $USER
-useradd --root /mnt --append --groups wheel $USER
+useradd --root /mnt -m $USER -G users
+usermod --root /mnt --append --groups libvirt $USER
+usermod --root /mnt --append --groups wheel $USER
 
 echo "[*] Granting sudo rights to the home user..."
 echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
