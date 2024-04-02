@@ -89,17 +89,17 @@ else
 fi
 
 # ENABLE/DISABLE (PROPRIETARY) GPU DRIVERS
-echo "[*] Enable AMD GPU drivers? (yes/no)"
+echo "[*] Enable AMD/ATI GPU drivers? (yes/no)"
 read gpu_amd
 gpu_amd="${gpu_amd,,}"
 
 if [ "$gpu_amd" == "no" ];
 then
-    echo "[*] AMD GPU drivers enabled: '$gpu_amd'"
+    echo "[*] AMD/ATI GPU drivers enabled: '$gpu_amd'"
     GPU_AMD=0
 elif [ "$gpu_amd" == "yes" ];
 then
-    echo "[*] AMD GPU drivers enabled: '$gpu_amd'"
+    echo "[*] AMD/ATI GPU drivers enabled: '$gpu_amd'"
     GPU_AMD=1
 else
     echo "[X] ERROR: Variable 'gpu_amd' is '$gpu_amd' but must be 'yes' or 'no'. Exiting..."
@@ -462,7 +462,7 @@ echo "::1 localhost" >> /mnt/etc/hosts
 # SETUP GPU
 if [ "$GPU_AMD" == 0 ];
 then
-    #FIXME
+    echo "[*] Skipping AMD/ATI GPU drivers..."
 elif [ "$GPU_AMD" == 1 ];
 then
     #FIXME
@@ -473,7 +473,7 @@ fi
 
 if [ "$GPU_INTEL" == 0 ];
 then
-    #FIXME
+    echo "[*] Skipping Intel GPU drivers..."
 elif [ "$GPU_INTEL" == 1 ];
 then
     #FIXME
@@ -484,7 +484,7 @@ fi
 
 if [ "$GPU_NVIDIA" == 0 ];
 then
-    #FIXME
+    echo "[*] Skipping NVIDIA GPU drivers..."
 elif [ "$GPU_NVIDIA" == 1 ];
 then
     #FIXME
@@ -496,7 +496,7 @@ fi
 # SETUP AUDIO
 if [ "$AUDIO" == 0 ];
 then
-    echo "[*] Skipping audio configuration because audio functionality is disabled."
+    echo "[*] Skipping audio configuration..."
 elif [ "$AUDIO" == 1 ];
 then
     echo "[*] Installing required packages for audio functionality..."
