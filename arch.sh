@@ -629,7 +629,7 @@ sleep 2
 # USER MANAGEMENT
 echo "[*] Adding the home user '$USER_NAME'..."
 useradd --root /mnt -m $USER
-useradd --root /mnt --append --groups libvirtd $USER
+useradd --root /mnt --append --groups libvirt $USER
 useradd --root /mnt --append --groups users $USER
 useradd --root /mnt --append --groups wheel $USER
 
