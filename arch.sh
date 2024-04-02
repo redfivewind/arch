@@ -380,113 +380,6 @@ echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
 pacstrap /mnt amd-ucode base bridge-utils ebtables edk2-ovmf gptfdisk gvfs intel-ucode iptables-nft "$KERNEL" libguestfs libvirt linux-firmware lvm2 mkinitcpio nano p7zip seabios sudo unzip virt-manager virt-viewer zip
 sleep 2
 
-# CONFIGURE SERVICES
-echo "[*] Configuring services..."
-#chroot /mnt
-
-# SETUP HYPERVISOR
-echo "[*] Configuring libvirtd..."
-echo "unix_sock_group = \"libvirt\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
-echo "unix_sock_rw_perms = \"0770\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
-chroot /mnt systemctl enable libvirtd.service
-#dnsmasq openbsd-netcat vde2
-
-if [ "$XEN" == 0 ];
-then
-    echo "[*] Installing required packages for the KVM virtualisation infrastructure..."
-    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S qemu-base   
-
-    echo "[*] Configuring the KVM virtualisation infrastructure..."
-    #FIXME
-elif [ "$XEN" == 1 ];
-then
-    echo "[*] Installing required packages for the Xen virtualisation infrastructure..."
-    chroot /mnt yay --disable-download-timeout --needed --noconfirm -S xen xen-qemu
-
-    echo "[*] Configuring the Xen virtualisation infrastructure..."
-    #FIXME
-else
-    echo "[X] ERROR: Variable 'XEN' is '$XEN' but must be 0 or 1. Exiting..."
-    exit 1
-fi
-
-# SETUP NETWORKING
-if [ "$NETWORKING" == 0 ];
-then
-    echo "[*] Skipping configuration for networking because networking is explicitely disabled."
-elif [ "$NETWORKING" == 1 ];
-then
-    echo "[*] Installing required packages for networking..."
-    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S \
-        dhcpcd \
-        iwd \
-        network-manager \
-        net-tools
-
-    echo "[*] Configuring required services for networking..."
-    chroot /mnt systemctl enable dhcpcd
-else
-    echo "[*] Variable 'NETWORKING' is '$NETWORKING' but must be 0 or 1. Exiting..."
-    exit 1
-fi
-
-echo "[*] Setting up the hostname..."
-echo $HOSTNAME > /mnt/etc/hostname
-
-echo "[*] Populating '/etc/hosts'..."
-echo "127.0.0.1 localhost" > /mnt/etc/hosts
-echo "::1 localhost" >> /mnt/etc/hosts
-
-'''# SETUP GPU
-if [ "$GPU_AMD" == 0 ];
-then
-    echo "[*] Skipping AMD/ATI GPU drivers..."
-elif [ "$GPU_AMD" == 1 ];
-then
-    #FIXME
-else
-    echo "[*] Variable 'GPU_AMD' is '$GPU_AMD' but must be 0 or 1. Exiting..."
-    exit 1
-fi
-
-if [ "$GPU_INTEL" == 0 ];
-then
-    echo "[*] Skipping Intel GPU drivers..."
-elif [ "$GPU_INTEL" == 1 ];
-then
-    #FIXME
-else
-    echo "[*] Variable 'GPU_INTEL' is '$GPU_INTEL' but must be 0 or 1. Exiting..."
-    exit 1
-fi
-
-if [ "$GPU_NVIDIA" == 0 ];
-then
-    echo "[*] Skipping NVIDIA GPU drivers..."
-elif [ "$GPU_NVIDIA" == 1 ];
-then
-    #FIXME
-else
-    echo "[*] Variable 'GPU_NVIDIA' is '$GPU_NVIDIA' but must be 0 or 1. Exiting..."
-    exit 1
-fi'''
-
-# SETUP AUDIO
-if [ "$AUDIO" == 0 ];
-then
-    echo "[*] Skipping audio configuration..."
-elif [ "$AUDIO" == 1 ];
-then
-    echo "[*] Installing required packages for audio functionality..."
-    chroot /mnt --disable-download-timeout --needed --noconfirm -S \
-        pavucontrol \
-        pulseaudio \
-        pulseaudio-alsa
-else
-    echo "[*] Variable 'AUDIO' is '$AUDIO' but must be 0 or 1. Exiting..."
-    exit 1
-fi
-
 # MOUNT REQUIRED FILESYSTEMS
 echo "[*] Mounting required filesystems..."
 mount -t proc proc /mnt/proc
@@ -594,12 +487,125 @@ else
     exit 1
 fi
 
-# UPDATE SYSTEM
-echo "[*] Updating the system..."
+# SETUP HYPERVISOR
+echo "[*] Configuring libvirtd..."
+echo "unix_sock_group = \"libvirt\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
+echo "unix_sock_rw_perms = \"0770\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
+chroot /mnt systemctl enable libvirtd.service
+#dnsmasq openbsd-netcat vde2
+
+if [ "$XEN" == 0 ];
+then
+    echo "[*] Installing required packages for the KVM virtualisation infrastructure..."
+    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S qemu-base   
+
+    echo "[*] Configuring the KVM virtualisation infrastructure..."
+    #FIXME
+elif [ "$XEN" == 1 ];
+then
+    echo "[*] Installing required packages for the Xen virtualisation infrastructure..."
+    chroot /mnt yay --disable-download-timeout --needed --noconfirm -S xen xen-qemu
+
+    echo "[*] Configuring the Xen virtualisation infrastructure..."
+    #FIXME
+else
+    echo "[X] ERROR: Variable 'XEN' is '$XEN' but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+# SETUP NETWORKING
+if [ "$NETWORKING" == 0 ];
+then
+    echo "[*] Skipping configuration for networking because networking is explicitely disabled."
+elif [ "$NETWORKING" == 1 ];
+then
+    echo "[*] Installing required packages for networking..."
+    pkgs="\
+        dhcpcd \
+        iwd \
+        networkmanager \
+        net-tools
+    "
+
+    for pkg in $pkgs;
+    do
+        chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S
+    done
+
+    echo "[*] Configuring required services for networking..."
+    chroot /mnt systemctl enable dhcpcd
+    chroot /mnt systemctl enable NetworkManager.service
+else
+    echo "[*] Variable 'NETWORKING' is '$NETWORKING' but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+echo "[*] Setting up the hostname..."
+echo $HOSTNAME > /mnt/etc/hostname
+
+echo "[*] Populating '/etc/hosts'..."
+echo "127.0.0.1 localhost" > /mnt/etc/hosts
+echo "::1 localhost" >> /mnt/etc/hosts
+
+'''# SETUP GPU
+if [ "$GPU_AMD" == 0 ];
+then
+    echo "[*] Skipping AMD/ATI GPU drivers..."
+elif [ "$GPU_AMD" == 1 ];
+then
+    #FIXME
+else
+    echo "[*] Variable 'GPU_AMD' is '$GPU_AMD' but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+if [ "$GPU_INTEL" == 0 ];
+then
+    echo "[*] Skipping Intel GPU drivers..."
+elif [ "$GPU_INTEL" == 1 ];
+then
+    #FIXME
+else
+    echo "[*] Variable 'GPU_INTEL' is '$GPU_INTEL' but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+if [ "$GPU_NVIDIA" == 0 ];
+then
+    echo "[*] Skipping NVIDIA GPU drivers..."
+elif [ "$GPU_NVIDIA" == 1 ];
+then
+    #FIXME
+else
+    echo "[*] Variable 'GPU_NVIDIA' is '$GPU_NVIDIA' but must be 0 or 1. Exiting..."
+    exit 1
+fi'''
+
+# SETUP AUDIO
+if [ "$AUDIO" == 0 ];
+then
+    echo "[*] Skipping audio configuration..."
+elif [ "$AUDIO" == 1 ];
+then
+    echo "[*] Installing required packages for audio functionality..."
+    chroot /mnt --disable-download-timeout --needed --noconfirm -S \
+        pavucontrol \
+        pulseaudio \
+        pulseaudio-alsa
+else
+    echo "[*] Variable 'AUDIO' is '$AUDIO' but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+# SETUP LOCALE
+echo "[*] Setting up the locale..."
 arch-chroot /mnt /bin/bash -c "\
-    pacman --disable-download-timeout --needed --noconfirm -Scc;\
-    pacman --disable-download-timeout --needed --noconfirm -Syyu"
-sleep 2
+    echo \"en_US.UTF-8 UTF-8\" > /etc/locale.gen;\
+    locale-gen;\
+    echo \"LANG=en_US.UTF-8\" > /etc/locale.conf;\
+    export LANG=en_US.UTF-8;\
+    echo \"KEYMAP=de-latin1\" > /etc/vconsole.conf;\
+    echo \"FONT=lat9w-16\" >> /etc/vconsole.conf"
 
 # SETUP TIME
 echo "[*] Setting up the hardware clock..."
@@ -612,16 +618,6 @@ chroot /mnt timedatectl set-timezone Europe/Berlin
 echo "[*] Enabling network time synchronisation..."
 chroot /mnt timedatectl set-ntp true
 sleep 2
-
-# SETUP LOCALE
-echo "[*] Setting up the locale..."
-arch-chroot /mnt /bin/bash -c "\
-    echo \"en_US.UTF-8 UTF-8\" > /etc/locale.gen;\
-    locale-gen;\
-    echo \"LANG=en_US.UTF-8\" > /etc/locale.conf;\
-    export LANG=en_US.UTF-8;\
-    echo \"KEYMAP=de-latin1\" > /etc/vconsole.conf;\
-    echo \"FONT=lat9w-16\" >> /etc/vconsole.conf"
 
 # SETUP KEYBOARD LAYOUT
 echo "[*] Loading German keyboard layout..."
