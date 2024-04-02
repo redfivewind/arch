@@ -11,20 +11,13 @@ read
 
 # GLOBAL VARIABLES
 echo "[*] Initialising global variables..."
-AUDIO=""
-DESKTOP=""
 DISK=""
-GPU_AMD=""
-GPU_INTEL=""
-GPU_NVIDIA=""
 HOSTNAME="MacBookAirM1"
-KERNEL="linux-hardened"
 LUKS_LVM="luks_lvm"
 LUKS_PASS=""
 LV_ROOT="lv_root"
 LV_SWAP="lv_swap"
 LVM_VG="lvm_vg"
-NETWORKING=""
 PART_EFI=""
 PART_EFI_LABEL="efi-sp"
 PART_LUKS=""
@@ -32,7 +25,6 @@ PART_LUKS_LABEL="luks"
 UEFI=""
 USER_NAME="user"
 USER_PASS=""
-XEN=""
 
 # SELECT PLATFORM
 echo "[*] Please select the plaform ('bios' or 'uefi'): "
@@ -49,134 +41,6 @@ then
     UEFI=1
 else
     echo "[X] ERROR: Variable 'platform' is '$platform' but must be 'bios' or 'uefi'. Exiting..."
-    exit 1
-fi
-
-# SELECT HYPERVISOR
-echo "[*] Please select the hypervisor ('kvm' or 'xen'): "
-read hypervisor
-hypervisor="${hypervisor,,}"
-
-if [ "$hypervisor" == "kvm" ];
-then
-    echo "[*] Hypervisor: '$hypervisor'..."
-    XEN=0
-elif [ "$hypervisor" == "xen" ];
-then
-    echo "[*] Hypervisor: '$hypervisor'..."
-    XEN=1
-else
-    echo "[X] ERROR: Variable 'hypervisor' is '$hypervisor' but must be 'kvm' or 'xen'. Exiting..."
-    exit 1
-fi
-
-# ENABLE/DISABLE NETWORKING
-echo "[*] Enable networking? (yes/no)"
-read networking
-networking="${networking,,}"
-
-if [ "$networking" == "no" ];
-then
-    echo "[*] Networking enabled: '$networking'"
-    NETWORKING=0
-elif [ "$networking" == "yes" ];
-then
-    echo "[*] Networking enabled: '$networking'"
-    NETWORKING=1
-else
-    echo "[X] ERROR: Variable 'networking' is '$networking' but must be 'yes' or 'no'. Exiting..."
-    exit 1
-fi
-
-# ENABLE/DISABLE (PROPRIETARY) GPU DRIVERS
-echo "[*] Enable AMD/ATI GPU drivers? (yes/no)"
-read gpu_amd
-gpu_amd="${gpu_amd,,}"
-
-if [ "$gpu_amd" == "no" ];
-then
-    echo "[*] AMD/ATI GPU drivers enabled: '$gpu_amd'"
-    GPU_AMD=0
-elif [ "$gpu_amd" == "yes" ];
-then
-    echo "[*] AMD/ATI GPU drivers enabled: '$gpu_amd'"
-    GPU_AMD=1
-else
-    echo "[X] ERROR: Variable 'gpu_amd' is '$gpu_amd' but must be 'yes' or 'no'. Exiting..."
-    exit 1
-fi
-
-echo "[*] Enable Intel GPU drivers? (yes/no)"
-read gpu_intel
-gpu_intel="${gpu_intel,,}"
-
-if [ "$gpu_intel" == "no" ];
-then
-    echo "[*] Intel GPU drivers enabled: '$gpu_intel'"
-    GPU_INTEL=0
-elif [ "$gpu_intel" == "yes" ];
-then
-    echo "[*] Intel GPU drivers enabled: '$gpu_intel'"
-    GPU_INTEL=1
-else
-    echo "[X] ERROR: Variable 'gpu_intel' is '$gpu_intel' but must be 'yes' or 'no'. Exiting..."
-    exit 1
-fi
-
-echo "[*] Enable NVIDIA GPU drivers? (yes/no)"
-read gpu_nvidia
-gpu_nvidia="${gpu_nvidia,,}"
-
-if [ "$gpu_nvidia" == "no" ];
-then
-    echo "[*] NVIDIA GPU drivers enabled: '$gpu_nvidia'"
-    GPU_NVIDIA=0
-elif [ "$gpu_nvidia" == "yes" ];
-then
-    echo "[*] NVIDIA GPU drivers enabled: '$gpu_nvidia'"
-    GPU_NVIDIA=1
-else
-    echo "[X] ERROR: Variable 'gpu_nvidia' is '$gpu_nvidia' but must be 'yes' or 'no'. Exiting..."
-    exit 1
-fi
-
-# ENABLE/DISABLE AUDIO
-echo "[*] Enable audio? (yes/no)"
-read audio
-audio="${audio,,}"
-
-if [ "$audio" == "no" ];
-then
-    echo "[*] Audio enabled: '$audio'"
-    AUDIO=0
-elif [ "$audio" == "yes" ];
-then
-    echo "[*] Audio enabled: '$audio'"
-    AUDIO=1
-else
-    echo "[X] ERROR: Variable 'audio' is '$audio' but must be 'yes' or 'no'. Exiting..."
-    exit 1
-fi
-
-# SELECT DESKTOP ENVIRONMENT (OPTIONAL)
-echo "[*] Please select the desktop environment ('-', 'hyprland' or 'xfce'): "
-read desktop
-desktop="${desktop,,}"
-
-if [ "$desktop" == "-" ];
-then
-    echo "[*] Desktop: '$desktop'"
-    DESKTOP="$desktop"
-elif [ "$desktop" == "hyprland" ];
-then
-    echo "[*] Desktop: '$desktop'"
-    DESKTOP="$desktop"
-elif [ "$desktop" == "xfce" ];
-then
-    echo "[*] Desktop: '$desktop'"
-    DESKTOP="$desktop"
-else
-    echo "[X] ERROR: Variable 'desktop' is '$desktop' but must be '-', 'hyprland' or 'xfce'. Exiting..."
     exit 1
 fi
 
@@ -377,7 +241,7 @@ pacman --disable-download-timeout --noconfirm -Syy
 
 # BOOTSTRAP SYSTEM
 echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
-pacstrap /mnt amd-ucode base bridge-utils ebtables edk2-ovmf gptfdisk gvfs intel-ucode iptables-nft "$KERNEL" libguestfs libvirt linux-firmware lvm2 mkinitcpio nano p7zip seabios sudo unzip virt-manager virt-viewer zip
+pacstrap /mnt amd-ucode base bridge-utils dhcpcd ebtables edk2-ovmf gptfdisk gvfs intel-ucode iptables-nft iwd libguestfs libvirt linux-firmware linux-hardened lvm2 mkinitcpio nano networkmanager net-tools p7zip pavucontrol pulseaudio pulseaudio-alsa seabios sudo unzip virt-manager virt-viewer zip
 sleep 2
 
 # MOUNT REQUIRED FILESYSTEMS
@@ -471,17 +335,6 @@ then
 
     echo "[*] Generating a UEFI boot entry..."
     efibootmgr --create --disk $DISK --part 1 --label 'arch-linux' --loader '\EFI\arch-linux.efi' --unicode
-
-    '''if [ "$XEN" == 0 ]; #FIXME
-    then
-        echo "[*] Skipping Xen boot configuration because Xen is not the selected hypervisor..."
-    elif [ "$XEN" == 1 ];
-    then
-        #FIXME
-    else
-        echo "[X] ERROR: Variable 'XEN' is '$XEN' but must be 0 or 1. Exiting..."
-        exit 1
-    fi'''
 else
     echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
     exit 1
@@ -494,45 +347,10 @@ echo "unix_sock_rw_perms = \"0770\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
 chroot /mnt systemctl enable libvirtd.service
 #dnsmasq openbsd-netcat vde2
 
-if [ "$XEN" == 0 ];
-then
-    echo "[*] Installing required packages for the KVM virtualisation infrastructure..."
-    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S qemu-base   
 
-    echo "[*] Configuring the KVM virtualisation infrastructure..."
-    #FIXME
-elif [ "$XEN" == 1 ];
-then
-    echo "[*] Installing required packages for the Xen virtualisation infrastructure..."
-    chroot /mnt yay --disable-download-timeout --needed --noconfirm -S xen xen-qemu
-
-    echo "[*] Configuring the Xen virtualisation infrastructure..."
-    #FIXME
-else
-    echo "[X] ERROR: Variable 'XEN' is '$XEN' but must be 0 or 1. Exiting..."
-    exit 1
-fi
 
 # SETUP NETWORKING
-if [ "$NETWORKING" == 0 ];
-then
-    echo "[*] Skipping configuration for networking because networking is explicitely disabled."
-elif [ "$NETWORKING" == 1 ];
-then
-    echo "[*] Installing required packages for networking..."
-    pkgs="\
-        dhcpcd \
-        iwd \
-        networkmanager \
-        net-tools
-    "
 
-    for pkg in $pkgs;
-    do
-        chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S
-    done
-
-    echo "[*] Configuring required services for networking..."
     chroot /mnt systemctl enable dhcpcd
     chroot /mnt systemctl enable NetworkManager.service
 else
@@ -580,22 +398,6 @@ else
     echo "[*] Variable 'GPU_NVIDIA' is '$GPU_NVIDIA' but must be 0 or 1. Exiting..."
     exit 1
 fi'''
-
-# SETUP AUDIO
-if [ "$AUDIO" == 0 ];
-then
-    echo "[*] Skipping audio configuration..."
-elif [ "$AUDIO" == 1 ];
-then
-    echo "[*] Installing required packages for audio functionality..."
-    chroot /mnt --disable-download-timeout --needed --noconfirm -S \
-        pavucontrol \
-        pulseaudio \
-        pulseaudio-alsa
-else
-    echo "[*] Variable 'AUDIO' is '$AUDIO' but must be 0 or 1. Exiting..."
-    exit 1
-fi
 
 # SETUP LOCALE
 echo "[*] Setting up the locale..."
