@@ -54,3 +54,39 @@ sudo systemctl enable --now lightdm.service
 shred --force --zero --remove=wipesync $(readlink -f $0)
 
 sudo pacman --noconfirm -Rns $(pacman -Qdtq)
+
+'''
+echo "[*] Installing desktop environment XFCE..."
+    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S \
+        archlinux-wallpaper \
+        light-locker \
+        lightdm \
+        lightdm-gtk-greeter \
+        lightdm-gtk-greeter-settings \
+        mousepad \
+        network-manager-applet \
+        ristretto \
+        thunar-archive-plugin \
+        xarchiver \
+        xfce-polkit \
+        xfce4 \
+        xfce4-cpugraph-plugin \
+        xfce4-notifyd \
+        xfce4-pulseaudio-plugin \
+        xfce4-screenshooter \
+        xfce4-taskmanager \
+        xfce4-whiskermenu-plugin \
+        xorg \
+        xorg-drivers    
+        
+    echo "[*] Configuring desktop environment XFCE..."
+    #export DISPLAY=:0
+    #export $(dbus-launch)
+    chroot /mnt xfconf-query -c xfce4-session -p /general/LockCommand -s "light-locker-command -l" #FIXME
+    chroot /mnt xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita-dark" #FIXME
+    #Wallpaper #FIXME
+    #Keymap #FIXME
+    chroot /mnt xfce4-settings-manager --reload    
+
+    chroot /mnt systemctl enable lightdm.service
+'''
