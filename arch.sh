@@ -253,7 +253,7 @@ mount -t devpts /dev/pts /mnt/dev/pts/
 if [ "$UEFI" == 0 ];
 then
     echo "[*] Skipping '/sys/firmware/efi/efivars' because the selected platform is BIOS..."
-if [ "$UEFI" == 1 ];
+elif [ "$UEFI" == 1 ];
 then
     echo "[*] Mounting '/sys/firmware/efi/efivars' because the selected platform is UEFI..."
     mount -o bind /sys/firmware/efi/efivars /mnt/sys/firmware/efi/efivars
