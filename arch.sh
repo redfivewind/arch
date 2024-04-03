@@ -293,7 +293,8 @@ sleep 2
 echo "[*] Setting up the boot environment..."
 
 echo "[*] Installing GRUB2..."
-chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S grub
+arch-chroot /mnt /bin/bash -c "\
+    pacman --disable-download-timeout --needed --noconfirm -S grub"
 
 echo "[*] Preapring GRUB2 to support booting from the LUKS partition..."
 echo "GRUB_ENABLE_CRYPTODISK=y" >> /mnt/etc/default/grub
@@ -304,41 +305,48 @@ tail /mnt/etc/default/grub
 sleep 2
 
 echo "[*] Rebuilding the initial ramdisk..."
-chroot /mnt mkinitcpio -P $KERNEL
+arch-chroot /mnt /bin/bash -c "\
+    mkinitcpio -P $KERNEL"
     
 if [ "$UEFI" == 0 ];
 then
     echo "[*] Skipping package 'efibootmgr'..."    
 
     echo "[*] Installing GRUB2 for platform BIOS..."
-    chroot /mnt grub-install $DISK
+    arch-chroot /mnt /bin/bash -c "\
+        grub-install $DISK"
 elif [ "$UEFI" == 1 ];
 then
     echo "[*] Installing package 'efibootmgr'..."
-    chroot /mnt pacman --disable-download-timeout --needed --noconfirm -S efibootmgr
+    arch-chroot /mnt /bin/bash -c "\
+        pacman --disable-download-timeout --needed --noconfirm -S efibootmgr"
     sleep 2
 
     echo "[*] Installing GRUB2 for platform UEFI..."
-    chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot/efi   
+    arch-chroot /mnt /bin/bash -c "\
+        grub-install --target=x86_64-efi --efi-directory=/boot/efi"
 else
     echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
     exit 1
 fi
 
 echo "[*] Generating a GRUB2 configuration file..."
-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+arch-chroot /mnt /bin/bash -c "\
+    grub-mkconfig -o /boot/grub/grub.cfg"
 sleep 2
 
 # CONFIGURE LIBVIRTD
 echo "[*] Configuring libvirtd..."
 echo "unix_sock_group = \"libvirt\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
 echo "unix_sock_rw_perms = \"0770\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
-chroot /mnt systemctl enable libvirtd.service
+arch-chroot /mnt /bin/bash -c "
+    systemctl enable libvirtd.service"
 
 # CONFIGURE NETWORKING
 echo "[*] Configuring network services..."
-chroot /mnt systemctl enable dhcpcd
-chroot /mnt systemctl enable NetworkManager.service
+arch-chroot /mnt /bin/bash -c "\
+    systemctl enable dhcpcd;\
+    systemctl enable NetworkManager.service"
 
 echo "[*] Setting up the hostname..."
 echo $HOSTNAME > /mnt/etc/hostname
@@ -359,14 +367,17 @@ arch-chroot /mnt /bin/bash -c "\
 
 # SETUP TIME
 echo "[*] Setting up the hardware clock..."
-chroot /mnt hwclock --systohc --utc
+arch-chroot /mnt /bin/bash -c "\
+    hwclock --systohc --utc"
 
 echo "[*] Setting up the timezone..."
-chroot /mnt ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-chroot /mnt timedatectl set-timezone Europe/Berlin
+arch-chroot /mnt /bin/bash -c "\
+    ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime;\
+    timedatectl set-timezone Europe/Berlin"
 
 echo "[*] Enabling network time synchronisation..."
-chroot /mnt timedatectl set-ntp true
+arch-chroot /mnt /bin/bash -c "\
+    timedatectl set-ntp true"
 sleep 2
 
 # SETUP KEYBOARD LAYOUT
