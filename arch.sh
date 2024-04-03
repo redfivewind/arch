@@ -158,25 +158,33 @@ if [ "$UEFI" == 0 ];
 then
     echo "[*] Partitioning the target disk using MBR partition layout..."
     parted $DISK --script mktable msdos
-    
+
+    echo "[*] Creating the LUKS partition..."
     parted $DISK --script mkpart primary ext4 0% 100%
     parted $DISK --script set 1 boot on
     parted $DISK --script name 1 $PART_LUKS_LABEL
 
+    echo "[*] Synchronising..."
     sync
 elif [ "$UEFI" == 1 ];
 then
     echo "[*] Partitioning the target disk using GPT partition layout..."
     parted $DISK --script mktable gpt
-    
+
+    echo "[*] Creating the EFI partition..."
     parted $DISK --script mkpart primary fat32 1MiB 512MiB 
     parted $DISK --script set 1 boot on 
     parted $DISK --script set 1 esp on
     parted $DISK --script name 1 $PART_EFI_LABEL
-    
+
+    echo "[*] Formatting the EFI partition..."
+    mkfs.fat -F32 $PART_EFI
+
+    echo "[*] Creating the LUKS partition..."
     parted $DISK --script mkpart primary ext4 512MiB 100%
     parted $DISK --script name 2 $PART_LUKS_LABEL
 
+    echo "[*] Synchronising..."
     sync
 else
     echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. Exiting..."
@@ -201,32 +209,21 @@ sleep 2
 
 # SETUP LVM
 echo "[*] Setting up LVM..."
+
+echo "[*] Setting up the phyiscal volume '$LUKS_LVM'..."
 pvcreate /dev/mapper/$LUKS_LVM
+
+echo "[*] Setting up the volume group '$LVM_VG'..."
 vgcreate $LVM_VG /dev/mapper/$LUKS_LVM
+
+echo "[*] Setting up the logical swap volume..."
 lvcreate -L 6144M $LVM_VG -n $LV_SWAP
-lvcreate -l 100%FREE $LVM_VG -n $LV_ROOT
-sleep 2
-
-# FORMAT PARTITIONS
-echo "[*] Formatting required partitions..."
-
-if [ "$UEFI" == 0 ];
-then
-    echo "[*] Skipping the EFI partition because the selected platform is BIOS..."
-elif [ "$UEFI" == 1 ];
-then
-    echo "[*] Formatting the EFI partition..."
-    mkfs.fat -F32 $PART_EFI    
-else
-    echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. Exiting..."
-    exit 1
-fi
-
-echo "[*] Formatting the root partition..."
-mkfs.ext4 /dev/mapper/$LVM_VG-$LV_ROOT
-
-echo "[*] Formatting the swap partition..."
 mkswap /dev/mapper/$LVM_VG-$LV_SWAP -L $LV_SWAP
+
+echo "[*] Setting up the logical root volume..."
+lvcreate -l 100%FREE $LVM_VG -n $LV_ROOT
+mkfs.ext4 /dev/mapper/$LVM_VG-$LV_ROOT
+sleep 2
 
 # MOUNT PARTITIONS
 echo "[*] Mounting required partitions..."
@@ -261,10 +258,6 @@ echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
 pacstrap /mnt amd-ucode base bridge-utils dhcpcd ebtables edk2-ovmf gptfdisk gvfs intel-ucode iptables-nft iwd libguestfs libvirt linux-firmware linux-hardened lvm2 mkinitcpio nano networkmanager net-tools p7zip pavucontrol pulseaudio pulseaudio-alsa seabios sudo unzip virt-manager virt-viewer zip
 sleep 2
 
-# COPY /ETC/RESOLV.CONF INTO NEW SYSTEM
-echo "[*] Copying '/etc/resolv.conf' to '/mnt' to enable DNS resolution within the new system's root..."
-cp /etc/resolv.conf /mnt/etc/resolv.conf
-
 # MOUNT REQUIRED FILESYSTEMS
 echo "[*] Mounting required filesystems..."
 mount -t proc proc /mnt/proc
@@ -285,6 +278,20 @@ else
 fi 
 
 sleep 2
+
+# COPY /ETC/RESOLV.CONF INTO NEW SYSTEM
+echo "[*] Copying '/etc/resolv.conf' to '/mnt' to enable DNS resolution within the new system's root..."
+cp /etc/resolv.conf /mnt/etc/resolv.conf
+
+# SETUP LOCALE
+echo "[*] Setting up the locale..."
+arch-chroot /mnt /bin/bash -c "\
+    echo \"en_US.UTF-8 UTF-8\" > /etc/locale.gen;\
+    locale-gen;\
+    echo \"LANG=en_US.UTF-8\" > /etc/locale.conf;\
+    export LANG=en_US.UTF-8;\
+    echo \"KEYMAP=de-latin1\" > /etc/vconsole.conf;\
+    echo \"FONT=lat9w-16\" >> /etc/vconsole.conf"
 
 # SETUP /ETC/CRYPTTAB
 echo "[*] Adding the LUKS partition to /etc/crypttab..."
@@ -371,16 +378,6 @@ echo $HOSTNAME > /mnt/etc/hostname
 echo "[*] Populating '/etc/hosts'..."
 echo "127.0.0.1 localhost" > /mnt/etc/hosts
 echo "::1 localhost" >> /mnt/etc/hosts
-
-# SETUP LOCALE
-echo "[*] Setting up the locale..."
-arch-chroot /mnt /bin/bash -c "\
-    echo \"en_US.UTF-8 UTF-8\" > /etc/locale.gen;\
-    locale-gen;\
-    echo \"LANG=en_US.UTF-8\" > /etc/locale.conf;\
-    export LANG=en_US.UTF-8;\
-    echo \"KEYMAP=de-latin1\" > /etc/vconsole.conf;\
-    echo \"FONT=lat9w-16\" >> /etc/vconsole.conf"
 
 # SETUP TIME
 echo "[*] Setting up the hardware clock..."
