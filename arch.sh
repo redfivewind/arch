@@ -207,30 +207,47 @@ lvcreate -L 6144M $LVM_VG -n $LV_SWAP
 lvcreate -l 100%FREE $LVM_VG -n $LV_ROOT
 sleep 2
 
-# FORMAT & MOUNT PARTITIONS
-echo "[*] Formatting & mounting required partitions..."
+# FORMAT PARTITIONS
+echo "[*] Formatting required partitions..."
 
 if [ "$UEFI" == 0 ];
 then
     echo "[*] Skipping the EFI partition because the selected platform is BIOS..."
 elif [ "$UEFI" == 1 ];
 then
-    echo "[*] Processing the EFI partition..."
-    mkfs.fat -F32 $PART_EFI
-    mkdir -p /mnt/boot/efi
-    mount $PART_EFI /mnt/boot/efi
-    sleep 2
+    echo "[*] Formatting the EFI partition..."
+    mkfs.fat -F32 $PART_EFI    
 else
     echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. Exiting..."
     exit 1
 fi
 
-echo "[*] Processing the root partition..."
+echo "[*] Formatting the root partition..."
 mkfs.ext4 /dev/mapper/$LVM_VG-$LV_ROOT
+
+echo "[*] Formatting the swap partition..."
+mkswap /dev/mapper/$LVM_VG-$LV_SWAP -L $LV_SWAP
+
+# MOUNT PARTITIONS
+echo "[*] Mounting required partitions..."
+
+echo "[*] Mounting the root partition..."
 mount -t ext4 /dev/$LVM_VG/$LV_ROOT /mnt
 
-echo "[*] Processing the swap partition..."
-mkswap /dev/mapper/$LVM_VG-$LV_SWAP -L $LV_SWAP
+if [ "$UEFI" == 0 ];
+then
+    echo "[*] Skipping the EFI partition because the selected platform is BIOS..."
+elif [ "$UEFI" == 1 ];
+then
+    echo "[*] Mounting the EFI partition..."
+    mkdir -p /mnt/boot/efi
+    mount $PART_EFI /mnt/boot/efi    
+else
+    echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. Exiting..."
+    exit 1
+fi
+
+echo "[*] Mounting the swap partition..."
 swapon /dev/$LVM_VG/$LV_SWAP
 sleep 2
 
