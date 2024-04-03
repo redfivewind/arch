@@ -216,7 +216,7 @@ then
 elif [ "$UEFI" == 1 ];
 then
     echo "[*] Processing the EFI partition..."
-    mkfs.vfat $PART_EFI
+    mkfs.fat -F32 $PART_EFI
     mkdir -p /mnt/boot/efi
     mount $PART_EFI /mnt/boot/efi
     sleep 2
