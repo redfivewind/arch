@@ -306,7 +306,7 @@ sleep 2
 
 echo "[*] Rebuilding the initial ramdisk..."
 arch-chroot /mnt /bin/bash -c "\
-    mkinitcpio -P $KERNEL"
+    mkinitcpio -P linux-hardened"
     
 if [ "$UEFI" == 0 ];
 then
