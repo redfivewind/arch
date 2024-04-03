@@ -290,7 +290,7 @@ arch-chroot /mnt /bin/bash -c "\
     locale-gen;\
     echo \"LANG=en_US.UTF-8\" > /etc/locale.conf;\
     export LANG=en_US.UTF-8;\
-    echo \"KEYMAP=de-latin1\" > /etc/vconsole.conf;\
+    echo \"KEYMAP=de\" > /etc/vconsole.conf;\
     echo \"FONT=lat9w-16\" >> /etc/vconsole.conf"
 
 # SETUP /ETC/CRYPTTAB
@@ -380,26 +380,12 @@ echo "127.0.0.1 localhost" > /mnt/etc/hosts
 echo "::1 localhost" >> /mnt/etc/hosts
 
 # SETUP TIME
-echo "[*] Setting up the hardware clock..."
+echo "[*] Setting up the time configuration..."
 arch-chroot /mnt /bin/bash -c "\
-    hwclock --systohc --utc"
-
-echo "[*] Setting up the timezone..."
-arch-chroot /mnt /bin/bash -c "\
+    hwclock --systohc --utc;\
     ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime;\
-    timedatectl set-timezone Europe/Berlin"
-
-echo "[*] Enabling network time synchronisation..."
-arch-chroot /mnt /bin/bash -c "\
+    timedatectl set-timezone Europe/Berlin;\
     timedatectl set-ntp true"
-sleep 2
-
-# SETUP KEYBOARD LAYOUT
-echo "[*] Loading German keyboard layout..."
-arch-chroot /mnt /bin/bash -c "\
-    loadkeys de-latin1;\
-    localectl set-keymap de"
-sleep 2
 
 # USER MANAGEMENT
 echo "[*] Adding the home user '$USER_NAME'..."
