@@ -5,7 +5,7 @@
 #USBGuard
 
 # START MESSAGE
-echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue...x"
+echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
 read
 
 # GLOBAL VARIABLES
