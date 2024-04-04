@@ -1,13 +1,13 @@
 # Global variables
-PATH="/tmp/yay-bin/"
+TMP_PATH="/tmp/yay-bin/"
 USER_NAME=$(whoami)
 
 # Temporary install Git
 sudo pacman --disable-download-timeout --needed --noconfirm -S git
 
 # Retrieve yay
-git clone https://aur.archlinux.org/yay-bin.git "$PATH"
-cd /home/$USER_NAME/tools/yay-bin
+git clone https://aur.archlinux.org/yay-bin.git "$TMP_PATH"
+cd "$TMP_PATH"
 
 # Install yay
 makepkg --noconfirm -si
@@ -27,6 +27,6 @@ sudo pacman --noconfirm -Rns git
 
 # Cleanup
 srm -v -r $(readlink -f $0)
-srm -v -r /home/$USER_NAME/tools/yay-bin
+srm -v -r "$TMP_PATH"
 
 sudo pacman --noconfirm -Rns $(pacman -Qdtq)
