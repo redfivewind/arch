@@ -345,16 +345,16 @@ then
         grub-install --target=x86_64-efi --efi-directory=/boot/efi"'''
 
     arch-chroot /mnt /bin/bash -c "\
-        echo \"[*] Installing required packages...\";\
+        echo '[*] Installing required packages...';\
         pacman --disable-download-timeout --needed --noconfirm -S efibootmgr sbctl;\
     
-        echo \"[*] Generating signing keys for UEFI Secure Boot...\";\
+        echo '[*] Generating signing keys for UEFI Secure Boot...';\
         sbctl create-keys;\
 
-        echo \"[*] Enrolling the signing keys for UEFI Secure Boot...\";\
+        echo '[*] Enrolling the signing keys for UEFI Secure Boot...';\
         sbctl enroll-keys --ignore-immutable --microsoft;\
     
-        echo \"[*] Generating a unified kernel image for Arch Linux...\";\
+        echo '[*] Generating a unified kernel image for Arch Linux...';\
         sbctl bundle --amducode /boot/amd-ucode.img \
           --cmdline /proc/cmdline \
           --initramfs /boot/initramfs-linux-hardened.img \
@@ -363,7 +363,7 @@ then
           --save \
           /boot/efi/EFI/arch/arch.efi
 
-        echo \"[*] Signing the unified kernel image...\";\
+        echo '[*] Signing the unified kernel image...';\
         sbctl sign /boot/efi/EFI/arch.efi;"
 else
     echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
