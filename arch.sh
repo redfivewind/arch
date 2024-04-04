@@ -319,7 +319,7 @@ echo "[*] Setting up the boot environment..."
 
 echo "[*] Updating the kernel cmdline..."
 KERNEL_CMDLINE="cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT"
-echo "$KERNEL_CMDLINE" > /proc/cmdline
+echo "$KERNEL_CMDLINE" > /etc/kernel/cmdline
     
 if [ "$UEFI" == 0 ];
 then
@@ -346,10 +346,6 @@ then
         grub-mkconfig -o /boot/grub/grub.cfg"
 elif [ "$UEFI" == 1 ];
 then
-    '''echo "[*] Installing GRUB2 for platform UEFI..."
-    arch-chroot /mnt /bin/bash -c "\
-        grub-install --target=x86_64-efi --efi-directory=/boot/efi"'''
-
     arch-chroot /mnt /bin/bash -c "\
         echo '[*] Installing required packages...';\
         pacman --disable-download-timeout --needed --noconfirm -S efibootmgr sbctl;\
@@ -362,7 +358,7 @@ then
     
         echo '[*] Generating a unified kernel image for Arch Linux...';\
         sbctl bundle --amducode /boot/amd-ucode.img \
-          --cmdline /proc/cmdline \
+          --cmdline /etc/kernel/cmdline \
           --initramfs /boot/initramfs-linux-hardened.img \
           --intelucode /boot/intel-ucode.img \
           --kernel-img /boot/vmlinuz-linux-hardened \
