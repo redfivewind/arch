@@ -362,12 +362,14 @@ then
           --intelucode /boot/intel-ucode.img \
           --kernel-img /boot/vmlinuz-linux-hardened \
           --save \
-          /boot/efi/EFI/arch.efi
+          /boot/efi/EFI/arch.efi;\
+          cat /proc/cmdline;\
+          sleep 10;\
 
         echo '[*] Signing the unified kernel image...';\
-        sbctl sign /boot/efi/EFI/arch.efi;
+        sbctl sign /boot/efi/EFI/arch.efi;\
         
-        echo '[*] Creating a boot entry...'
+        echo '[*] Creating a boot entry...';\
         efibootmgr --disk $DISK --part 1 --create --label 'arch' --load '\EFI\arch.efi' --verbose;\
         efibootmgr -v;\
         sleep 3"
@@ -400,9 +402,7 @@ echo "::1 localhost" >> /mnt/etc/hosts
 echo "[*] Setting up the time configuration..."
 arch-chroot /mnt /bin/bash -c "\
     hwclock --systohc --utc;\
-    ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime;\
-    timedatectl set-timezone Europe/Berlin;\
-    timedatectl set-ntp true"
+    ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime;\"
 
 # USER MANAGEMENT
 echo "[*] Adding the home user '$USER_NAME'..."
