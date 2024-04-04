@@ -238,7 +238,8 @@ elif [ "$UEFI" == 1 ];
 then
     echo "[*] Mounting the EFI partition..."
     mkdir -p /mnt/boot/efi
-    mount $PART_EFI /mnt/boot/efi    
+    mount $PART_EFI /mnt/boot/efi
+    mkdir /mnt/boot/efi/EFI
 else
     echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. Exiting..."
     exit 1
