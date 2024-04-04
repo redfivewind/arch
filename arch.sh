@@ -316,6 +316,10 @@ sleep 2
 
 # SETUP BOOT ENVIRONMENT
 echo "[*] Setting up the boot environment..."
+
+echo "[*] Updating the kernel cmdline..."
+KERNEL_CMDLINE="cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT"
+echo "$KERNEL_CMDLINE" > /proc/cmdline
     
 if [ "$UEFI" == 0 ];
 then
@@ -328,7 +332,8 @@ then
     echo "[*] Preapring GRUB2 to support booting from the LUKS partition..."
     echo "GRUB_ENABLE_CRYPTODISK=y" >> /mnt/etc/default/grub
     sed -i 's/GRUB_CMDLINE_LINUX=""/#GRUB_CMDLINE_LINUX=""/' /mnt/etc/default/grub
-    echo "GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT\"" >> /mnt/etc/default/grub
+    #echo "GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT\"" >> /mnt/etc/default/grub
+    echo "GRUB_CMDLINE_LINUX=\"$KERNEL_CMDLINE\"" >> /mnt/etc/default/grub
     echo "GRUB_PRELOAD_MODULES=\"cryptodisk part_msdos\"" >> /mnt/etc/default/grub
     tail /mnt/etc/default/grub
     sleep 2
