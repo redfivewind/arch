@@ -365,7 +365,12 @@ then
           /boot/efi/EFI/arch.efi
 
         echo '[*] Signing the unified kernel image...';\
-        sbctl sign /boot/efi/EFI/arch.efi;"
+        sbctl sign /boot/efi/EFI/arch.efi;
+        
+        echo '[*] Creating a boot entry...'
+        efibootmgr --disk $DISK --part 1 --create --label 'arch' --load '\EFI\arch.efi' --verbose;\
+        efibootmgr -v;\
+        sleep 3"
 else
     echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
     exit 1
