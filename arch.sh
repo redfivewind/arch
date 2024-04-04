@@ -361,7 +361,7 @@ then
           --intelucode /boot/intel-ucode.img \
           --kernel-img /boot/vmlinuz-linux-hardened \
           --save \
-          /boot/efi/EFI/arch/arch.efi
+          /boot/efi/EFI/arch.efi
 
         echo '[*] Signing the unified kernel image...';\
         sbctl sign /boot/efi/EFI/arch.efi;"
