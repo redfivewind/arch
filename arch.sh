@@ -308,7 +308,7 @@ sleep 2
 echo "[*] Rebuilding initramfs image using mkinitcpio..."
 echo "MODULES=()" > /mnt/etc/mkinitcpio.conf
 echo "BINARIES=()" >> /mnt/etc/mkinitcpio.conf
-echo "HOOKS=(autodetect base block encrypt filesystems fsck keyboard kms lvm2 modconf udev)" >> /mnt/etc/mkinitcpio.conf
+echo "HOOKS=(base udev keyboard autodetect modconf kms block filesystems fsck encrypt lvm2)" >> /mnt/etc/mkinitcpio.conf
 arch-chroot /mnt /bin/bash -c "\
     mkinitcpio -p linux-hardened"
 sleep 2
