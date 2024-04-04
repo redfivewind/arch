@@ -3,7 +3,7 @@ TMP_PATH="/tmp/yay-bin/"
 USER_NAME=$(whoami)
 
 # Temporary install Git
-sudo pacman --disable-download-timeout --needed --noconfirm -S gitx
+sudo pacman --disable-download-timeout --needed --noconfirm -S git
 
 # Retrieve yay
 git clone https://aur.archlinux.org/yay-bin.git "$TMP_PATH"
