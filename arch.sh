@@ -315,49 +315,60 @@ sleep 2
 
 # SETUP BOOT ENVIRONMENT
 echo "[*] Setting up the boot environment..."
-
-echo "[*] Installing GRUB2..."
-arch-chroot /mnt /bin/bash -c "\
-    pacman --disable-download-timeout --needed --noconfirm -S grub"
-
-echo "[*] Preapring GRUB2 to support booting from the LUKS partition..."
-echo "GRUB_ENABLE_CRYPTODISK=y" >> /mnt/etc/default/grub
-sed -i 's/GRUB_CMDLINE_LINUX=""/#GRUB_CMDLINE_LINUX=""/' /mnt/etc/default/grub
-echo "GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT\"" >> /mnt/etc/default/grub
-echo "GRUB_PRELOAD_MODULES=\"cryptodisk part_msdos\"" >> /mnt/etc/default/grub
-tail /mnt/etc/default/grub
-sleep 2
-
-echo "[*] Rebuilding the initial ramdisk..."
-arch-chroot /mnt /bin/bash -c "\
-    mkinitcpio -P linux-hardened"
     
 if [ "$UEFI" == 0 ];
 then
     echo "[*] Skipping package 'efibootmgr'..."    
 
-    echo "[*] Installing GRUB2 for platform BIOS..."
     arch-chroot /mnt /bin/bash -c "\
-        grub-install $DISK"
-elif [ "$UEFI" == 1 ];
-then
-    echo "[*] Installing package 'efibootmgr'..."
-    arch-chroot /mnt /bin/bash -c "\
-        pacman --disable-download-timeout --needed --noconfirm -S efibootmgr"
+        echo \"[*] Installing the GRUB2 package...\";\
+        pacman --disable-download-timeout --needed --noconfirm -S grub"
+
+    echo "[*] Preapring GRUB2 to support booting from the LUKS partition..."
+    echo "GRUB_ENABLE_CRYPTODISK=y" >> /mnt/etc/default/grub
+    sed -i 's/GRUB_CMDLINE_LINUX=""/#GRUB_CMDLINE_LINUX=""/' /mnt/etc/default/grub
+    echo "GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT\"" >> /mnt/etc/default/grub
+    echo "GRUB_PRELOAD_MODULES=\"cryptodisk part_msdos\"" >> /mnt/etc/default/grub
+    tail /mnt/etc/default/grub
     sleep 2
 
-    echo "[*] Installing GRUB2 for platform UEFI..."
     arch-chroot /mnt /bin/bash -c "\
-        grub-install --target=x86_64-efi --efi-directory=/boot/efi"
+        echo \"[*] Installing GRUB2 to disk...\";\
+        grub-install $DISK;\
+        
+        echo \"[*] Generating a GRUB2 configuration file...\";\
+        grub-mkconfig -o /boot/grub/grub.cfg"
+elif [ "$UEFI" == 1 ];
+then
+    '''echo "[*] Installing GRUB2 for platform UEFI..."
+    arch-chroot /mnt /bin/bash -c "\
+        grub-install --target=x86_64-efi --efi-directory=/boot/efi"'''
+
+    arch-chroot /mnt /bin/bash -c "\
+        echo \"[*] Installing required packages...\";\
+        pacman --disable-download-timeout --needed --noconfirm -S efibootmgr sbctl;\
+    
+        echo \"[*] Generating signing keys for UEFI Secure Boot...\";\
+        sbctl create-keys;\
+
+        echo \"[*] Enrolling the signing keys for UEFI Secure Boot...\";\
+        sbctl enroll-keys --ignore-immutable --microsoft;\
+    
+        echo \"[*] Generating a unified kernel image for Arch Linux...\";\
+        sbctl bundle --amducode /boot/amd-ucode.img \
+          --cmdline /proc/cmdline \
+          --initramfs /boot/initramfs-linux-hardened.img \
+          --intelucode /boot/intel-ucode.img \
+          --kernel-img /boot/vmlinuz-linux-hardened \
+          --save \
+          /boot/efi/EFI/arch/arch.efi
+
+        echo \"[*] Signing the unified kernel image...\";\
+        sbctl sign /boot/efi/EFI/arch.efi;"
 else
     echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
     exit 1
 fi
-
-echo "[*] Generating a GRUB2 configuration file..."
-arch-chroot /mnt /bin/bash -c "\
-    grub-mkconfig -o /boot/grub/grub.cfg"
-sleep 2
 
 # CONFIGURE LIBVIRTD
 echo "[*] Configuring libvirtd..."
