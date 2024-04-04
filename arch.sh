@@ -358,14 +358,12 @@ then
     
         echo '[*] Generating a unified kernel image for Arch Linux...';\
         sbctl bundle --amducode /boot/amd-ucode.img \
-          --cmdline /etc/kernel/cmdline \
-          --initramfs /boot/initramfs-linux-hardened.img \
-          --intelucode /boot/intel-ucode.img \
-          --kernel-img /boot/vmlinuz-linux-hardened \
-          --save \
-          /boot/efi/EFI/arch.efi;\
-          cat /proc/cmdline;\
-          sleep 10;\
+            --cmdline /etc/kernel/cmdline \
+            --initramfs /boot/initramfs-linux-hardened.img \
+            --intelucode /boot/intel-ucode.img \
+            --kernel-img /boot/vmlinuz-linux-hardened \
+            --save \
+            /boot/efi/EFI/arch.efi;\
 
         echo '[*] Signing the unified kernel image...';\
         sbctl sign /boot/efi/EFI/arch.efi;\
