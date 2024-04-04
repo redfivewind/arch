@@ -402,7 +402,7 @@ echo "::1 localhost" >> /mnt/etc/hosts
 echo "[*] Setting up the time configuration..."
 arch-chroot /mnt /bin/bash -c "\
     hwclock --systohc --utc;\
-    ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime;\"
+    ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime"
 
 # USER MANAGEMENT
 echo "[*] Adding the home user '$USER_NAME'..."
