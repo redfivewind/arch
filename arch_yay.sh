@@ -18,7 +18,7 @@ git clone https://aur.archlinux.org/yay-bin.git "$TMP_PATH"
 cd "$TMP_PATH"
 
 # Install yay
-echo "[*] Installing YAY AUR helper..."
+echo "[*] Installing AUR helper YAY..."
 makepkg --noconfirm -si
 cd
 yay --version
