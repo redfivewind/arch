@@ -37,7 +37,7 @@ sudo pacman --noconfirm -Rns $(pacman -Qdtq)
 echo "[*] Removing temporary files & directories..."
 srm -v -r "$TMP_PATH"
 
-echo "[*] Should this script be deleted? (yes/no)
+echo "[*] Should this script be deleted? (yes/no)"
 read delete_script
 
 if [ "$delete_script" == "yes ];
