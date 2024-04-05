@@ -1,11 +1,20 @@
+# Start message
+echo "[*] This script installs the Xen Hypervisor on Arch Linux."
+echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
+read
+
+# Global variables
+echo "[*] Initialising global variables..."
+USER_NAME=$(whoami)
+
 # Add user to libvirt group
-echo "[*] Adding user '$(whoami)' to the libvirt group..."
-sudo usermod --append --groups libvirt $(whoami)
+echo "[*] Adding user '$USER_NAME' to the libvirt group..."
+sudo usermod --append --groups libvirt $USER_NAME
 
 # Configure libvirt
 echo "[*] Configuring libvirtd..."
-echo "unix_sock_group = \"libvirt\"" | sudo tee -a /mnt/etc/libvirt/libvirtd.conf
-echo "unix_sock_rw_perms = \"0770\"" | sudo tee -a /mnt/etc/libvirt/libvirtd.conf
+echo "unix_sock_group = \"libvirt\"" | sudo tee -a /etc/libvirt/libvirtd.conf
+echo "unix_sock_rw_perms = \"0770\"" | sudo tee -a /etc/libvirt/libvirtd.conf
 sudo systemctl enable libvirtd.service
 
 # Generate Xen UKI
@@ -28,7 +37,14 @@ objcopy --add-section .xsm=xsm.cfg --change-section-vma .xsm=0xffff82d041080000 
 echo "[*] Copying the Xen UKI to the EFI partition..."
 sudo cp /tmp/xen.efi /boot/efi/EFI/xen.efi
 
+# Sign Xen UKI using sbctl
+echo "[*] Signing the Xen UKI using sbctl..."
+sudo sbctl sign /boot/efi/EFI/xen.efi
+
 # Clean up
 echo "[*] Cleaning up..."
 rm -f -r /tmp/xen.efi
 
+# Stop message
+echo "[*] Work done. Exiting..."
+exit 0
