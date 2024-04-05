@@ -47,13 +47,13 @@ done
 echo "[*] Configuring XFCE..."
 
 echo "[*] Setting the Xfce keyboard layout to German..."
-doas mkdir -p /etc/X11/xorg.conf.d/
-echo "Section \"InputClass\"" | doas tee /etc/X11/xorg.conf.d/00-keyboard.conf
-echo "  Identifier \"system-keyboard\"" | doas tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
-echo "  MatchIsKeyboard \"on\"" | doas tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
-echo "  Option \"XkbLayout\" \"de\"" | doas tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
-echo "  Option \"XkbVariant\" \"nodeadkeys\"" | doas tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
-echo "EndSection" | doas tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
+sudo mkdir -p /etc/X11/xorg.conf.d/
+echo "Section \"InputClass\"" | sudo tee /etc/X11/xorg.conf.d/00-keyboard.conf
+echo "  Identifier \"system-keyboard\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
+echo "  MatchIsKeyboard \"on\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
+echo "  Option \"XkbLayout\" \"de\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
+echo "  Option \"XkbVariant\" \"nodeadkeys\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
+echo "EndSection" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
 
 #export DISPLAY=:0
 #export $(dbus-launch)
