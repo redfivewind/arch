@@ -10,9 +10,9 @@ XEN_EFI=/boot/xen.efi
 
 # Install required packages
 echo "[*] Install required packages..."
-yay --disable-download-timeout --needed --noconfirm -S xen 
-yay --disable-download-timeout --needed --noconfirm -S xen-qemu
-yay --disable-download-timeout --needed --noconfirm -S libvirt-xen
+yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S xen 
+yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S xen-qemu
+yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S libvirt-xen
 sudo pacman --disable-download-timeout --needed --noconfirm -S bridge-utils ebtables edk2-ovmf libguestfs libvirt seabios virt-manager virt-viewer
 
 # Enable Xen services
