@@ -82,12 +82,29 @@ echo "[*] Signing the Xen UKI using sbctl..."
 sudo sbctl sign /boot/efi/EFI/xen.efi
 
 # Create a UEFI boot entry
+echo "[*] Creating a UEFI boot entry for Xen..."
 sudo efibootmgr --disk $DISK --part 1 --create --label 'xen' --load '\EFI\xen.efi' --unicode --verbose
 sudo efibootmgr -v
 
 # Clean up
 echo "[*] Cleaning up..."
-rm -f -r /tmp/xen.efi
+
+echo "[*] Removing the temporary Xen UKI..."
+sudo shred --force --remove=wipesync --verbose --zero /tmp/xen.efi
+
+echo "[*] Should this script be deleted? (yes/no)
+read delete_script
+
+if [ "$delete_script" == "yes ];
+then
+    echo "[*] Deleting the script..."
+    shred --force --remove=wipesync --verbose --zero $(readlink -f $0)
+elif [ "$delete_script" == "no" ];
+then
+    echo "[*] Skipping script deletion..."
+else
+    echo "[!] ALERT: Variable 'delete_script' is '$delete_script' but must be 'yes' or 'no'."
+fi
 
 # Stop message
 echo "[*] Work done. Exiting..."
