@@ -92,7 +92,7 @@ echo "[*] Cleaning up..."
 echo "[*] Removing the temporary Xen UKI..."
 sudo shred --force --remove=wipesync --verbose --zero /tmp/xen.efi
 
-echo "[*] Should this script be deleted? (yes/no)
+echo "[*] Should this script be deleted? (yes/no)"
 read delete_script
 
 if [ "$delete_script" == "yes ];
