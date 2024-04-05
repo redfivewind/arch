@@ -13,7 +13,7 @@ echo "[*] Install required packages..."
 yay --disable-download-timeout --needed --noconfirm -S xen 
 yay --disable-download-timeout --needed --noconfirm -S xen-qemu
 yay --disable-download-timeout --needed --noconfirm -S libvirt-xen
-sudo pacman --disable-download-timeout --needed --noconfirm --S bridge-utils ebtables edk2-ovmf libguestfs libvirt seabios virt-manager virt-viewer
+sudo pacman --disable-download-timeout --needed --noconfirm -S bridge-utils ebtables edk2-ovmf libguestfs libvirt seabios virt-manager virt-viewer
 
 # Enable Xen services
 echo "[*] Enabling Xen services..."
@@ -40,35 +40,35 @@ sudo cp /boot/xen.efi /tmp/xen.efi
 
 SECTION_PATH="/boot/xen.cfg"
 SECTION_NAME=".config"
-echo "[*] Writing '$CONFIG_PATH' to the new $SECTION_NAME section..."
+echo "[*] Writing '$SECTION_PATH' to the new $SECTION_NAME section..."
 read -r -a OBJDUMP <<< $(objdump -h $XEN_EFI | grep .pad)
 VMA=$(printf "%X" $((((0x${OBJDUMP[2]} + 0x${OBJDUMP[3]} + 4096 - 1) / 4096) * 4096)))
 objcopy --add-section .config="PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
 
 SECTION_PATH="/boot/initramfs-linux-hardened"
 SECTION_NAME=".initramfs"
-echo "[*] Writing '$CONFIG_PATH' to the new $SECTION_NAME section..."
+echo "[*] Writing '$SECTION_PATH' to the new $SECTION_NAME section..."
 read -r -a OBJDUMP <<< $(objdump -h $XEN_EFI | grep .config)
 VMA=$(printf "%X" $((((0x${OBJDUMP[2]} + 0x${OBJDUMP[3]} + 4096 - 1) / 4096) * 4096)))
 objcopy --add-section .config="PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
 
 SECTION_PATH="/boot/vmlinuz-linux-hardened"
 SECTION_NAME=".kernel"
-echo "[*] Writing '$CONFIG_PATH' to the new $SECTION_NAME section..."
+echo "[*] Writing '$SECTION_PATH' to the new $SECTION_NAME section..."
 read -r -a OBJDUMP <<< $(objdump -h $XEN_EFI | grep .initramfs)
 VMA=$(printf "%X" $((((0x${OBJDUMP[2]} + 0x${OBJDUMP[3]} + 4096 - 1) / 4096) * 4096)))
 objcopy --add-section .config="PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
 
 SECTION_PATH="/boot/xsm.cfg"
 SECTION_NAME=".xsm"
-echo "[*] Writing '$CONFIG_PATH' to the new $SECTION_NAME section..."
+echo "[*] Writing '$SECTION_PATH' to the new $SECTION_NAME section..."
 read -r -a OBJDUMP <<< $(objdump -h $XEN_EFI | grep .kernel)
 VMA=$(printf "%X" $((((0x${OBJDUMP[2]} + 0x${OBJDUMP[3]} + 4096 - 1) / 4096) * 4096)))
 objcopy --add-section .config="PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
 
 #SECTION_PATH=
 #SECTION_NAME=".ucode"
-#echo "[*] Writing '$CONFIG_PATH' to the new $SECTION_NAME section..."
+#echo "[*] Writing '$SECTION_PATH' to the new $SECTION_NAME section..."
 #read -r -a OBJDUMP <<< $(objdump -h $XEN_EFI | grep .pad)
 #VMA=$(printf "%X" $((((0x${OBJDUMP[2]} + 0x${OBJDUMP[3]} + 4096 - 1) / 4096) * 4096)))
 #objcopy --add-section .config="PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
