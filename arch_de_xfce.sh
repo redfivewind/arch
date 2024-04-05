@@ -70,19 +70,8 @@ sudo systemctl enable --now lightdm.service
 echo "[*] Removing other packages that are no longer required..."
 sudo pacman --noconfirm -Rns $(pacman -Qdtq)
 
-echo "[*] Should this script be deleted? (yes/no)"
-read delete_script
-
-if [ "$delete_script" == "yes ];
-then
-    echo "[*] Deleting the script..."
-    shred --force --remove=wipesync --verbose --zero $(readlink -f $0)
-elif [ "$delete_script" == "no" ];
-then
-    echo "[*] Skipping script deletion..."
-else
-    echo "[!] ALERT: Variable 'delete_script' is '$delete_script' but must be 'yes' or 'no'."
-fi
+echo "[*] Deleting this script"
+shred --force --remove=wipesync --verbose --zero $(readlink -f $0)
 
 # Stop message
 echo "[*] Work done. Exiting..."
