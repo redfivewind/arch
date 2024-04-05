@@ -20,18 +20,31 @@ sudo systemctl enable libvirtd.service
 # Generate Xen UKI
 echo "[*] Generating a unified kernel image (UKI) of the Xen kernel..."
 sudo cp /boot/xen.efi /tmp/xen.efi
-sudo objdump -h /boot/efi/xen.efi | perl -ane '/\.pad/ && printf "0x%016x\n", hex($F[2]) + hex($F[3])'
+#sudo objdump -h /boot/efi/xen.efi | perl -ane '/\.pad/ && printf "0x%016x\n", hex($F[2]) + hex($F[3])'
 
+echo "[*] Writing 'xen.cfg' to the new .config section..."
+CONFIG_PATH="/boot/xen.cfg"
+CONFIG_VMA=
+objcopy --add-section .config= --change-section-vma .config=0xffff82d041000000 /tmp/xen.efi /tmp/xen.efi
 
-objcopy --add-section .config=xen.cfg --change-section-vma .config=0xffff82d041000000 /tmp/xen.efi /tmp/xen.efi
+echo "[*] Writing 'xen.cfg' to the new .config section..."
+KERNEL_PATH=
+KERNEL_VMA=
+sudo objcopy --add-section .kernel=/boot/vmlinuz-linux-hardened --change-section-vma .kernel=0xffff82d041100000 /tmp/xen.efi /tmp/xen.efi
 
-objcopy --add-section .kernel=vmlinux --change-section-vma .kernel=0xffff82d041100000 /tmp/xen.efi /tmp/xen.efi
+echo "[*] Writing 'xen.cfg' to the new .config section..."
+RAMDISK_PATH=
+RAMDISK_VMA=
+sudo objcopy --add-section .ramdisk=/boot/initramfs-linux-hardened.img --change-section-vma .ramdisk=0xffff82d042000000 /tmp/xen.efi /tmp/xen.efi
 
-objcopy --add-section .ramdisk=initrd.img --change-section-vma .ramdisk=0xffff82d042000000 /tmp/xen.efi /tmp/xen.efi
+#echo "[*] Writing 'xen.cfg' to the new .config section..."
+#VMA_NEW=...
+#sudo objcopy --add-section .ucode=/boot/intel-ucode.bin --change-section-vma .ucode=0xffff82d041010000 /tmp/xen.efi /tmp/xen.efi
 
-objcopy --add-section .ucode=ucode.bin --change-section-vma .ucode=0xffff82d041010000 /tmp/xen.efi /tmp/xen.efi
-
-objcopy --add-section .xsm=xsm.cfg --change-section-vma .xsm=0xffff82d041080000 /tmp/xen.efi /tmp/xen.efi
+echo "[*] Writing '/boot/xsm.cfg' to the new .xsm section..."
+XSM_PATH=...
+XSM_VMA=
+sudo objcopy --add-section .xsm=/boot/xsm.cfg --change-section-vma .xsm=0xffff82d041080000 /tmp/xen.efi /tmp/xen.efi
 
 # Copy Xen UKI to EFI partition
 echo "[*] Copying the Xen UKI to the EFI partition..."
