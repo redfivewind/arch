@@ -1,5 +1,3 @@
-#sudo objdump -h /boot/efi/xen.efi | perl -ane '/\.pad/ && printf "0x%016x\n", hex($F[2]) + hex($F[3])'
-
 # Start message
 echo "[*] This script installs the Xen Hypervisor on Arch Linux."
 echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
