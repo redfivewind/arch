@@ -25,7 +25,7 @@ yay --version
 
 # Install required tools
 echo "[*] Installing AUR base packages..."
-yay --disable-download-timeout --needed --noconfirm -S chkrootkit secure-delete
+yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S chkrootkit secure-delete
 
 # Cleanup
 echo "[*] Removing package git..."
