@@ -15,6 +15,14 @@ yay --disable-download-timeout --needed --noconfirm -S xen-qemu
 yay --disable-download-timeout --needed --noconfirm -S libvirt-xen
 sudo pacman --disable-download-timeout --needed --noconfirm --S bridge-utils ebtables edk2-ovmf libguestfs libvirt seabios virt-manager virt-viewer
 
+# Enable Xen services
+echo "[*] Enabling Xen services..."
+sudo systemctl enable xen-init-dom0.service
+sudo systemctl enable xen-qemu-dom0-disk-backend.service
+sudo systemctl enable xen-watchdog.service
+sudo systemctl enable xenconsoled.service
+sudo systemctl enable xendomains.service
+
 # Enable libvirt user access
 echo "[*] Enabling libvirt access for user '$USER_NAME'..."
 
