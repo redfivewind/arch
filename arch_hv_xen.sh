@@ -6,7 +6,8 @@ read
 # Global variables
 echo "[*] Initialising global variables..."
 USER_NAME=$(whoami)
-XEN_EFI=/boot/xen.efi
+XEN_CFG="/boot/xen.cfg"
+XEN_EFI="/boot/xen.efi"
 
 # Install required packages
 echo "[*] Installing required packages..."
@@ -34,6 +35,12 @@ sudo systemctl enable libvirtd.service
 echo "[*] Adding user '$USER_NAME' to the libvirt group..."
 sudo usermod --append --groups libvirt $USER_NAME
 
+# Generate Xen configuration file
+echo "[*] Generating the Xen configuration file '$XEN_CFG'..."
+
+echo "" | sudo tee $XEN_CFG #FIXME
+echo "" | sudo tee -a $XEN_CFG #FIXME
+
 # Generate Xen UKI
 echo "[*] Generating a unified kernel image (UKI) of the Xen kernel..."
 sudo cp /boot/xen.efi /tmp/xen.efi
@@ -45,7 +52,7 @@ read -r -a OBJDUMP <<< $(objdump -h $XEN_EFI | grep .pad)
 VMA=$(printf "%X" $((((0x${OBJDUMP[2]} + 0x${OBJDUMP[3]} + 4096 - 1) / 4096) * 4096)))
 objcopy --add-section .config="$SECTION_PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
 
-SECTION_PATH="/boot/initramfs-linux-hardened"
+SECTION_PATH="/boot/initramfs-linux-hardened.img"
 SECTION_NAME=".initramfs"
 echo "[*] Writing '$SECTION_PATH' to the new $SECTION_NAME section..."
 read -r -a OBJDUMP <<< $(objdump -h $XEN_EFI | grep .config)
