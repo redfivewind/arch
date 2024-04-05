@@ -5,6 +5,7 @@
 #USBGuard
 
 # START MESSAGE
+echo "[*] This script installs Arch Linux on this system."
 echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
 read
 
@@ -377,13 +378,6 @@ else
     exit 1
 fi
 
-# CONFIGURE LIBVIRTD
-echo "[*] Configuring libvirtd..."
-echo "unix_sock_group = \"libvirt\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
-echo "unix_sock_rw_perms = \"0770\"" | tee -a /mnt/etc/libvirt/libvirtd.conf
-arch-chroot /mnt /bin/bash -c "
-    systemctl enable libvirtd.service"
-
 # CONFIGURE NETWORKING
 echo "[*] Configuring network services..."
 arch-chroot /mnt /bin/bash -c "\
@@ -406,7 +400,6 @@ arch-chroot /mnt /bin/bash -c "\
 # USER MANAGEMENT
 echo "[*] Adding the home user '$USER_NAME'..."
 useradd --root /mnt -m $USER_NAME -G users
-usermod --root /mnt --append --groups libvirt $USER_NAME
 usermod --root /mnt --append --groups wheel $USER_NAME
 sleep 2
 
