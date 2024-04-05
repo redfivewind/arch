@@ -60,7 +60,7 @@ sudo systemctl enable --now lightdm.service
 echo "[*] Removing other packages that are no longer required..."
 sudo pacman --noconfirm -Rns $(pacman -Qdtq)
 
-echo "[*] Should this script be deleted? (yes/no)
+echo "[*] Should this script be deleted? (yes/no)"
 read delete_script
 
 if [ "$delete_script" == "yes ];
