@@ -43,35 +43,35 @@ SECTION_NAME=".config"
 echo "[*] Writing '$SECTION_PATH' to the new $SECTION_NAME section..."
 read -r -a OBJDUMP <<< $(objdump -h $XEN_EFI | grep .pad)
 VMA=$(printf "%X" $((((0x${OBJDUMP[2]} + 0x${OBJDUMP[3]} + 4096 - 1) / 4096) * 4096)))
-objcopy --add-section .config="PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
+objcopy --add-section .config="$SECTION_PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
 
 SECTION_PATH="/boot/initramfs-linux-hardened"
 SECTION_NAME=".initramfs"
 echo "[*] Writing '$SECTION_PATH' to the new $SECTION_NAME section..."
 read -r -a OBJDUMP <<< $(objdump -h $XEN_EFI | grep .config)
 VMA=$(printf "%X" $((((0x${OBJDUMP[2]} + 0x${OBJDUMP[3]} + 4096 - 1) / 4096) * 4096)))
-objcopy --add-section .config="PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
+objcopy --add-section .config="$SECTION_PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
 
 SECTION_PATH="/boot/vmlinuz-linux-hardened"
 SECTION_NAME=".kernel"
 echo "[*] Writing '$SECTION_PATH' to the new $SECTION_NAME section..."
 read -r -a OBJDUMP <<< $(objdump -h $XEN_EFI | grep .initramfs)
 VMA=$(printf "%X" $((((0x${OBJDUMP[2]} + 0x${OBJDUMP[3]} + 4096 - 1) / 4096) * 4096)))
-objcopy --add-section .config="PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
+objcopy --add-section .config="$SECTION_PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
 
 SECTION_PATH="/boot/xsm.cfg"
 SECTION_NAME=".xsm"
 echo "[*] Writing '$SECTION_PATH' to the new $SECTION_NAME section..."
 read -r -a OBJDUMP <<< $(objdump -h $XEN_EFI | grep .kernel)
 VMA=$(printf "%X" $((((0x${OBJDUMP[2]} + 0x${OBJDUMP[3]} + 4096 - 1) / 4096) * 4096)))
-objcopy --add-section .config="PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
+objcopy --add-section .config="$SECTION_PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
 
 #SECTION_PATH=
 #SECTION_NAME=".ucode"
 #echo "[*] Writing '$SECTION_PATH' to the new $SECTION_NAME section..."
 #read -r -a OBJDUMP <<< $(objdump -h $XEN_EFI | grep .pad)
 #VMA=$(printf "%X" $((((0x${OBJDUMP[2]} + 0x${OBJDUMP[3]} + 4096 - 1) / 4096) * 4096)))
-#objcopy --add-section .config="PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
+#objcopy --add-section .config="$SECTION_PATH" --change-section-vma .config="$VMA" /tmp/xen.efi /tmp/xen.efi
 
 # Copy Xen UKI to EFI partition
 echo "[*] Copying the Xen UKI to the EFI partition..."
