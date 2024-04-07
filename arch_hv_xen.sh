@@ -11,8 +11,7 @@ XEN_EFI="/boot/xen.efi"
 
 # Install required packages
 echo "[*] Installing required packages..."
-yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S xen 
-yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S xen-qemu
+yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S xen
 yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S libvirt-xen
 sudo pacman --disable-download-timeout --needed --noconfirm -S bridge-utils ebtables edk2-ovmf libguestfs libvirt seabios virt-manager virt-viewer
 
@@ -38,8 +37,13 @@ sudo usermod --append --groups libvirt $USER_NAME
 # Generate Xen configuration file
 echo "[*] Generating the Xen configuration file '$XEN_CFG'..."
 
-echo "" | sudo tee $XEN_CFG #FIXME
-echo "" | sudo tee -a $XEN_CFG #FIXME
+echo '[global]' | sudo tee $XEN_CFG
+echo 'default=arch-linux' | sudo tee -a $XEN_CFG
+echo '' | sudo tee -a $XEN_CFG
+echo '[arch-linux]' | sudo tee -a $XEN_CFG
+echo 'options=' | sudo tee -a $XEN_CFG #FIXME
+echo 'kernel=' | sudo tee -a $XEN_CFG #FIXME
+echo 'ramdisk=' | sudo tee -a $XEN_CFG #FIXME
 
 # Generate Xen UKI
 echo "[*] Generating a unified kernel image (UKI) of the Xen kernel..."
