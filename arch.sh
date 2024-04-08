@@ -1,8 +1,7 @@
 #FIREWALL: Block everything
 #LAPTOP: TLP, Suspend/Hibernate
-#SECURITY: EDR, Disable shell history, rkhunter/chkrootkit
+#SECURITY: EDR, Disable shell history, rkhunter/chkrootkit, USBGuard
 #SHELL: busybox-ash, dash, dash-static-musl, ..?
-#USBGuard
 
 # START MESSAGE
 echo "[*] This script installs Arch Linux on this system."
