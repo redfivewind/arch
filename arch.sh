@@ -288,17 +288,19 @@ sleep 2
 echo "[*] Copying '/etc/resolv.conf' to '/mnt' to enable DNS resolution within the new system's root..."
 cp /etc/resolv.conf /mnt/etc/resolv.conf
 
-# SETUP LOCALE
-echo "[*] Setting up the locale..."
+# SETUP REGION
+echo "[*] Setting up the region..."
 arch-chroot /mnt /bin/bash -c "\
     echo \"en_US.UTF-8 UTF-8\" > /etc/locale.gen;\
-    locale-gen;\
-    
+    locale-gen;\    
     echo \"LANG=en_US.UTF-8\" > /etc/locale.conf;\
     export LANG=en_US.UTF-8;\
     
     echo \"KEYMAP=de\" > /etc/vconsole.conf;\
-    echo \"FONT=lat9w-16\" >> /etc/vconsole.conf"
+    echo \"FONT=lat9w-16\" >> /etc/vconsole.conf;\
+    
+    ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime;\
+    systemctl enable systemd-timesyncd"
 
 # SETUP /ETC/CRYPTTAB
 echo "[*] Adding the LUKS partition to /etc/crypttab..."
