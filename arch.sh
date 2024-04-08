@@ -67,7 +67,7 @@ else
         then
             echo "[*] Path '$DISK' is a valid block device." 
     
-            if [[ $DISK == "/dev/mmc*" ]]; 
+            if (echo "$DISK" | grep -q "^/dev/mmc"); 
             then
                 echo "[*] Target disk seems to be a MMC disk."
 
@@ -83,7 +83,7 @@ else
                     echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. This is unexpected behaviour. Exiting..."
                     exit 1
                 fi
-            elif [[ "$DISK" == "/dev/nvme*" ]]; 
+            elif (echo "$DISK" | grep -q "^/dev/nvme"); 
             then
                 echo "[*] Target disk seems to be a NVME disk."
     
