@@ -425,12 +425,10 @@ echo "[*] Adding user paths & scripts..."
 mkdir -p /mnt/home/$USER_NAME/tools
 mkdir -p /mnt/home/$USER_NAME/workspace
 
-echo "\
-    sudo pacman --disable-download-timeout --needed --noconfirm -Syyu\n\
-    yay --disable-download-timeout --needed --noconfirm -Syyu\n\
-    sudo pacman --noconfirm -Rns \$(pacman -Qdtq)\n\
-    sudo chmod 4755 /opt/*/chrome-sandbox\n"\
-> /mnt/home/$USER_NAME/tools/update.sh
+echo "sudo pacman --disable-download-timeout --needed --noconfirm -Syyu" > /mnt/home/$USER_NAME/tools/update.sh
+echo "yay --disable-download-timeout --needed --noconfirm -Syyu" >> /mnt/home/$USER_NAME/tools/update.sh
+echo "sudo pacman --noconfirm -Rns \$(pacman -Qdtq)" >> /mnt/home/$USER_NAME/tools/update.sh
+echo "sudo chmod 4755 /opt/*/chrome-sandbox" >> /mnt/home/$USER_NAME/tools/update.sh
 
 chroot /mnt chown -R $USER_NAME:users /home/$USER_NAME
 
