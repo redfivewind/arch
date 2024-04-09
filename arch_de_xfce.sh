@@ -63,7 +63,7 @@ xfce4-settings-manager --reload
 
 # Enable LightDM service
 echo "[*] Enabling the LightDM service..."
-sudo systemctl enable --now lightdm.service
+sudo systemctl enable lightdm.service
 
 # Cleanup
 echo "[*] Removing other packages that are no longer required..."
