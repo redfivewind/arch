@@ -57,6 +57,8 @@ echo "EndSection" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
 
 #export DISPLAY=:0
 #export $(dbus-launch)
+#FIXME: SUPER -> xfce4-popup-whiskermenu
+#FIXME: SUPER + L -> xflock4
 xfconf-query -c xfce4-session -p /general/LockCommand -s "light-locker-command -l"
 xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita-dark"
 xfce4-settings-manager --reload
