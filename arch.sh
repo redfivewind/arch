@@ -1,3 +1,4 @@
+#BIOS: Testing
 #FIREWALL: Block everything
 #LAPTOP: TLP, Suspend/Hibernate
 #SECURITY: EDR, Disable shell history, rkhunter/chkrootkit, USBGuard
