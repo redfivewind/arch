@@ -1,4 +1,3 @@
-#BIOS: Testing
 #FIREWALL: Block everything
 #LAPTOP: TLP, Suspend/Hibernate
 #SECURITY: EDR, Disable shell history, rkhunter/chkrootkit, USBGuard
@@ -163,7 +162,6 @@ then
     echo "[*] Creating the LUKS partition..."
     parted $DISK --script mkpart primary ext4 0% 100%
     parted $DISK --script set 1 boot on
-    parted $DISK --script name 1 $PART_LUKS_LABEL
 
     echo "[*] Formatting the LUKS partition..."
     echo -n $LUKS_PASS | cryptsetup luksFormat $PART_LUKS --type luks1 -c twofish-xts-plain64 -h sha512 -s 512 --iter-time 10000 -
