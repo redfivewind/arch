@@ -6,7 +6,7 @@
 
 # START MESSAGE
 echo "[*] This script installs Arch Linux on this system."
-echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
+echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue...x"
 read
 
 # GLOBAL VARIABLES
