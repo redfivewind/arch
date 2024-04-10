@@ -51,6 +51,7 @@ else
     echo "[!] ALERT: Variable 'delete_script' is '$delete_script' but must be 'yes' or 'no'."
 fi
 
-# STOP MESSAGE
+# Stop
+echo "[*] Installation of Arch Linux is finished. You may reboot now."
 echo "[*] Work done. Exiting..."
 exit 0
