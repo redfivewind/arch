@@ -28,7 +28,7 @@ USER_PASS=""
 # SELECT PLATFORM
 echo "[*] Please select the plaform ('bios' or 'uefi'): "
 read platform
-platform="${platform,,}"
+platform=$(echo "$platform" | tr '[:upper:]' '[:lower:]')
 
 if [ "$platform" == "bios" ];
 then
