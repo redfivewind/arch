@@ -439,6 +439,7 @@ sync
 umount -a
 
 # Stop message
+sync
 echo "[*] Installation of Arch Linux completed. You may reboot now."
 echo "[*] Work done. Exiting..."
 exit 0
