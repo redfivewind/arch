@@ -3,12 +3,12 @@
 #SECURITY: EDR, Disable shell history, rkhunter/chkrootkit, USBGuard
 #SHELL: busybox-ash, dash, dash-static-musl, ..?
 
-# START MESSAGE
+# Start message
 echo "[*] This script installs Arch Linux on this system."
 echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
 read
 
-# GLOBAL VARIABLES
+# Global variables
 echo "[*] Initialising global variables..."
 DISK=""
 HOSTNAME="MacBookAirM1"
@@ -25,7 +25,7 @@ UEFI=""
 USER_NAME="user"
 USER_PASS=""
 
-# SELECT PLATFORM
+# Select platform
 echo "[*] Please select the plaform ('bios' or 'uefi'): "
 read platform
 platform=$(echo "$platform" | tr '[:upper:]' '[:lower:]')
@@ -43,7 +43,7 @@ else
     exit 1
 fi
 
-# SELECT DISK
+# Select disk
 echo "[*] Retrieving available disks..."
 echo
 lsblk
@@ -125,7 +125,7 @@ else
     fi
 fi
 
-# LUKS PASSWORD
+# LUKS password
 echo "[*] Please enter the LUKS password: "
 read -s luks_pass_a
 echo "[*] Please reenter the LUKS password: "
@@ -138,7 +138,7 @@ else
     exit 1
 fi
 
-# USER PASSWORD
+# User password
 echo "[*] Please enter the user password: "
 read -s user_pass_a
 echo "[*] Please reenter the user password: "
@@ -151,7 +151,7 @@ else
     exit 1
 fi
 
-# DISK PARTITIONING
+# Disk partitioning
 echo "[*] Partitioning the disk..."
 
 if [ "$UEFI" == 0 ];
@@ -210,7 +210,7 @@ done
 
 parted $DISK print
 
-# SETUP LVM
+# Setup LVM
 echo "[*] Setting up LVM..."
 
 echo "[*] Setting up the phyiscal volume '$LUKS_LVM'..."
@@ -228,7 +228,7 @@ lvcreate -l 100%FREE $LVM_VG -n $LV_ROOT
 mkfs.ext4 /dev/mapper/$LVM_VG-$LV_ROOT
 sleep 2
 
-# MOUNT PARTITIONS
+# Mount partitions
 echo "[*] Mounting required partitions..."
 
 echo "[*] Mounting the root partition..."
@@ -252,17 +252,17 @@ echo "[*] Mounting the swap partition..."
 swapon /dev/$LVM_VG/$LV_SWAP
 sleep 2
 
-# UPDATE PACMAN DATABASE
+# Update pacman database
 echo "[*] Updating the pacman database..."
 pacman --disable-download-timeout --noconfirm -Scc
 pacman --disable-download-timeout --noconfirm -Syy
 
-# BOOTSTRAP SYSTEM
+# Bootstrap system
 echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
 pacstrap /mnt amd-ucode base base-devel dhcpcd gptfdisk gvfs intel-ucode iptables-nft iwd linux-firmware linux-hardened lvm2 mkinitcpio nano networkmanager net-tools p7zip pavucontrol pulseaudio pulseaudio-alsa sudo unzip zip
 sleep 2
 
-# MOUNT REQUIRED FILESYSTEMS
+# Mount required filesystems
 echo "[*] Mounting required filesystems..."
 mount -t proc proc /mnt/proc
 mount -t sysfs sys /mnt/sys
@@ -283,11 +283,11 @@ fi
 
 sleep 2
 
-# COPY /ETC/RESOLV.CONF INTO NEW SYSTEM
+# Copy /etc/resolv.conf to /mnt
 echo "[*] Copying '/etc/resolv.conf' to '/mnt' to enable DNS resolution within the new system's root..."
 cp /etc/resolv.conf /mnt/etc/resolv.conf
 
-# SETUP REGION
+# Setup region
 echo "[*] Setting up the region..."
 arch-chroot /mnt /bin/bash -c "\
     echo \"en_US.UTF-8 UTF-8\" > /etc/locale.gen;\
@@ -301,18 +301,18 @@ arch-chroot /mnt /bin/bash -c "\
     ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime;\
     systemctl enable systemd-timesyncd"
 
-# SETUP /ETC/CRYPTTAB
+# Setup /etc/crypttab
 echo "[*] Adding the LUKS partition to /etc/crypttab..."
 printf "${LUKS_LVM}\tUUID=%s\tnone\tluks\n" "$(cryptsetup luksUUID $PART_LUKS)" | tee -a /mnt/etc/crypttab
 cat /mnt/etc/crypttab
 
-# SETUP /ETC/FSTAB
+# Setup /etc/fstab
 echo "[*] Generating the /etc/fstab file and setting the 'noatime' property..."
 genfstab -U /mnt > /mnt/etc/fstab
 sed -i 's/relatime/noatime/g' /mnt/etc/fstab
 sleep 2
 
-# REBUILD INITRAMFS IMAGE
+# Rebuild initramfs image
 echo "[*] Rebuilding initramfs image using mkinitcpio..."
 echo "MODULES=()" > /mnt/etc/mkinitcpio.conf
 echo "BINARIES=()" >> /mnt/etc/mkinitcpio.conf
@@ -321,7 +321,7 @@ arch-chroot /mnt /bin/bash -c "\
     mkinitcpio -p linux-hardened"
 sleep 2
 
-# SETUP BOOT ENVIRONMENT
+# Setup boot environment
 echo "[*] Setting up the boot environment..."
 
 echo "[*] Updating the kernel cmdline..."
@@ -384,7 +384,7 @@ else
     exit 1
 fi
 
-# CONFIGURE NETWORKING
+# Configure networking
 echo "[*] Configuring network services..."
 arch-chroot /mnt /bin/bash -c "\
     systemctl enable dhcpcd;\
@@ -397,13 +397,13 @@ echo "[*] Populating '/etc/hosts'..."
 echo "127.0.0.1 localhost" > /mnt/etc/hosts
 echo "::1 localhost" >> /mnt/etc/hosts
 
-# SETUP TIME
+# Setup time
 echo "[*] Setting up the time configuration..."
 arch-chroot /mnt /bin/bash -c "\
     hwclock --systohc --utc;\
     ln /usr/share/zoneinfo/Europe/Berlin /etc/localtime"
 
-# USER MANAGEMENT
+# User management
 echo "[*] Adding the home user '$USER_NAME'..."
 useradd --root /mnt -m $USER_NAME -G users
 usermod --root /mnt --append --groups wheel $USER_NAME
@@ -433,11 +433,12 @@ chroot /mnt chown -R $USER_NAME:users /home/$USER_NAME
 
 sleep 2
 
-# UNMOUNT FILESYSTEMS
+# Unmount filesystems
 echo "[*] Unmounting filesystems..."
 sync
 umount -a
 
-# STOP MESSAGE
+# Stop message
+echo "[*] Installation of Arch Linux completed. You may reboot now."
 echo "[*] Work done. Exiting..."
 exit 0
