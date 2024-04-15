@@ -23,7 +23,7 @@ sudo systemctl enable xen-watchdog.service
 sudo systemctl enable xenconsoled.service
 sudo systemctl enable xendomains.service
 
-# Enable libvirt user access
+# Enable non-root access to libvirtd
 echo "[*] Enabling libvirt access for user '$USER_NAME'..."
 
 echo "[*] Granting non-root access to libvirt to the 'libvirt' group..."
