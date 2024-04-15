@@ -26,13 +26,15 @@ sudo systemctl enable xendomains.service
 # Enable libvirt user access
 echo "[*] Enabling libvirt access for user '$USER_NAME'..."
 
-echo "[*] Configuring libvirtd..."
+echo "[*] Granting non-root access to libvirt to the 'libvirt' group..."
 echo "unix_sock_group = \"libvirt\"" | sudo tee -a /etc/libvirt/libvirtd.conf
 echo "unix_sock_rw_perms = \"0770\"" | sudo tee -a /etc/libvirt/libvirtd.conf
-sudo systemctl enable libvirtd.service
 
-echo "[*] Adding user '$USER_NAME' to the libvirt group..."
+echo "[*] Adding user '$USER_NAME' to the 'libvirt' group..."
 sudo usermod --append --groups libvirt $USER_NAME
+
+echo "[*] Enabling the 'libvirtd' service..."
+sudo systemctl enable libvirtd.service
 
 # Generate Xen configuration file
 echo "[*] Generating the Xen configuration file '$XEN_CFG'..."
