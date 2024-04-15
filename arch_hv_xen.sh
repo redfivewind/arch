@@ -108,7 +108,7 @@ sudo shred --force --remove=wipesync --verbose --zero /tmp/xen.efi
 echo "[*] Should this script be deleted? (yes/no)"
 read delete_script
 
-if [ "$delete_script" == "yes ];
+if [ "$delete_script" == "yes" ];
 then
     echo "[*] Deleting the script..."
     shred --force --remove=wipesync --verbose --zero $(readlink -f $0)
