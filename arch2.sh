@@ -212,19 +212,21 @@ _01_04_00_prep() {
 }
 
 _01_04_01_prep_cfg_pkg_mgr() {
-    #FIXME
+    echo "[*] Skipping configuration of pacman..."
 }
 
 _01_04_02_prep_update_pkg_mgr() {
-    #FIXME
+    echo "[*] Updating the pacman database..."
+    pacman --disable-download-timeout --noconfirm -Scc
+    pacman --disable-download-timeout --noconfirm -Syy
 }
 
 _01_04_03_prep_install_pkgs() {
-    #FIXME
+    echo "[*] Skipping installation of packages..."
 }
 
 _01_04_04_prep_enable_udev() {
-    #FIXME
+    echo "[*] Skipping configuration of udev..."
 }
 
 _01_05_part_disk() {
@@ -337,7 +339,28 @@ _03_00() {
 }
 
 _03_01_mount_fs() {
-    #FIXME
+    echo "[*] Mounting required partitions..."
+
+    echo "[*] Mounting the root partition..."
+    mount -t ext4 /dev/$LVM_VG/$LV_ROOT /mnt
+    
+    if [ "$UEFI" == 0 ];
+    then
+        echo "[*] Skipping the EFI partition because the selected platform is BIOS..."
+    elif [ "$UEFI" == 1 ];
+    then
+        echo "[*] Mounting the EFI partition..."
+        mkdir -p /mnt/boot/efi
+        mount $PART_EFI /mnt/boot/efi
+        mkdir /mnt/boot/efi/EFI
+    else
+        echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. Exiting..."
+        exit 1
+    fi
+    
+    echo "[*] Mounting the swap partition..."
+    swapon /dev/$LVM_VG/$LV_SWAP
+    sleep 2
 }
 
 _03_02_00_net() {
