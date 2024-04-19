@@ -18,7 +18,7 @@ _01_01_start_msg() {
 _01_02_init_global_vars() {
     echo "[*] Initialising global variables..."
     DISK=""
-    GROUPS="audio netdev plugdev video"
+    GROUPS="audio netdev plugdev video wheel"
     HOSTNAME="localhost"
     LUKS_LVM="luks_lvm"
     LUKS_PASS=""
@@ -311,34 +311,6 @@ _01_06_setup_lvm() {
 }
 
 _01_07_mount_partitions() {
-    #FIXME
-}
-
-_02_00() {
-    echo "[*] --------- STAGE: 02 - MAIN INSTALLATION ---------"
-    _02_01_install_sys
-}
-
-_02_01_install_sys() {
-    #FIXME
-}
-
-_03_00() {
-    echo "[*] --------- STAGE: 03 - POST INSTALLATION ---------"
-    _03_01_mount_fs
-    _03_02_00_net
-    _03_03_00_kernel
-    _03_04_00_ramdisk
-    _03_05_00_region
-    _03_06_setup_boot_env
-    _03_07_install_pkgs
-    _03_08_00_services
-    _03_09_00_user
-    _03_10_unmount_fs
-    _03_11_stop_msg
-}
-
-_03_01_mount_fs() {
     echo "[*] Mounting required partitions..."
 
     echo "[*] Mounting the root partition..."
@@ -363,6 +335,54 @@ _03_01_mount_fs() {
     sleep 2
 }
 
+_02_00() {
+    echo "[*] --------- STAGE: 02 - MAIN INSTALLATION ---------"
+    _02_01_install_sys
+}
+
+_02_01_install_sys() {
+    echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
+    pacstrap /mnt amd-ucode base base-devel dhcpcd gptfdisk gvfs intel-ucode iptables-nft iwd linux-firmware linux-hardened lvm2 mkinitcpio nano networkmanager net-tools p7zip pavucontrol pulseaudio pulseaudio-alsa sudo unzip zip
+    sleep 2
+}
+
+_03_00() {
+    echo "[*] --------- STAGE: 03 - POST INSTALLATION ---------"
+    _03_01_mount_fs
+    _03_02_00_net
+    _03_03_00_kernel
+    _03_04_00_ramdisk
+    _03_05_00_region
+    _03_06_setup_boot_env
+    _03_07_install_pkgs
+    _03_08_00_services
+    _03_09_00_user
+    _03_10_unmount_fs
+    _03_11_stop_msg
+}
+
+_03_01_mount_fs() {
+    echo "[*] Mounting required filesystems..."
+    mount -t proc proc /mnt/proc
+    mount -t sysfs sys /mnt/sys
+    mount -o bind /dev /mnt/dev
+    mount -t devpts /dev/pts /mnt/dev/pts/
+    
+    if [ "$UEFI" == 0 ];
+    then
+        echo "[*] Skipping '/sys/firmware/efi/efivars' because the selected platform is BIOS..."
+    elif [ "$UEFI" == 1 ];
+    then
+        echo "[*] Mounting '/sys/firmware/efi/efivars' because the selected platform is UEFI..."
+        mount -o bind /sys/firmware/efi/efivars /mnt/sys/firmware/efi/efivars
+    else
+        echo "[X] ERROR: Variable 'UEFI' is '$UEFI' but must be 0 or 1. Exiting..."
+        exit 1
+    fi 
+    
+    sleep 2
+}
+
 _03_02_00_net() {
     echo "[*] Enabling networking within the new system..."
     _03_02_01_net_enable_dns_resolution
@@ -371,15 +391,19 @@ _03_02_00_net() {
 }
 
 _03_02_01_net_enable_dns_resolution() {
-    #FIXME
+    echo "[*] Copying '/etc/resolv.conf' to '/mnt' to enable DNS resolution within the new system's root..."
+    cp /etc/resolv.conf /mnt/etc/resolv.conf
 }
 
 _03_02_02_net_set_hostname() {
-    #FIXME
+    echo "[*] Setting up the hostname..."
+    echo $HOSTNAME > /mnt/etc/hostname
 }
 
 _03_02_03_net_populate_hostsfile() {
-    #FIXME
+    echo "[*] Populating '/etc/hosts'..."
+    echo "127.0.0.1 localhost" > /mnt/etc/hosts
+    echo "::1 localhost" >> /mnt/etc/hosts
 }
 
 _03_03_00_kernel() {
@@ -389,7 +413,9 @@ _03_03_00_kernel() {
 }
 
 _03_03_01_kernel_cfg_crypttab() {
-    #FIXME
+    echo "[*] Adding the LUKS partition to /etc/crypttab..."
+    printf "${LUKS_LVM}\tUUID=%s\tnone\tluks\n" "$(cryptsetup luksUUID $PART_LUKS)" | tee -a /mnt/etc/crypttab
+    cat /mnt/etc/crypttab
 }
 
 _03_03_02_kernel_cfg_fstab() {
@@ -400,7 +426,13 @@ _03_03_02_kernel_cfg_fstab() {
 }
 
 _03_04_00_ramdisk() {
-    #FIXME
+    echo "[*] Rebuilding initramfs image using mkinitcpio..."
+    echo "MODULES=()" > /mnt/etc/mkinitcpio.conf
+    echo "BINARIES=()" >> /mnt/etc/mkinitcpio.conf
+    echo "HOOKS=(base udev keyboard keymap autodetect modconf kms block filesystems fsck encrypt lvm2)" >> /mnt/etc/mkinitcpio.conf
+    arch-chroot /mnt /bin/bash -c "\
+        mkinitcpio -p linux-hardened"
+    sleep 2
 }
 
 _03_05_00_region() {
@@ -411,23 +443,91 @@ _03_05_00_region() {
 }
 
 _03_05_01_region_setup_keymap() {
-    #FIXME
+    echo "[*] Setting up the keymap..."
+    echo "KEYMAP=de" > /mnt/etc/vconsole.conf
+    echo "FONT=lat9w-16" > /mnt/etc/vconsole.conf
 }
 
 _03_05_02_region_setup_locale() {
-    #FIXME
+    echo "[*] Setting up the locale..."
+    echo "en_US.UTF-8 UTF-8" > /mnt/etc/locale.gen
+    arch-chroot /mnt /bin/bash -c "locale-gen"    
+    echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf;
+    arch-chroot /mnt /bin/bash -c "export LANG=en_US.UTF-8"
 }
 
 _03_05_03_00_region_setup_time() {
-    #FIXME
+    echo "[*] Setting up the time..."
+    arch-chroot /mnt /bin/bash -c "hwclock --systohc --utc"
+    ln -sf /mnt/usr/share/zoneinfo/Europe/Berlin /mnt/etc/localtime
 }
 
 _03_06_setup_boot_env() {
-    #FIXME
+    echo "[*] Setting up the boot environment..."
+
+    echo "[*] Updating the kernel cmdline..."
+    KERNEL_CMDLINE="cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT rw"
+    echo "$KERNEL_CMDLINE" > /mnt/etc/kernel/cmdline
+        
+    if [ "$UEFI" == 0 ];
+    then
+        echo "[*] Skipping package 'efibootmgr'..."    
+    
+        arch-chroot /mnt /bin/bash -c "\
+            echo \"[*] Installing the GRUB2 package...\";\
+            pacman --disable-download-timeout --needed --noconfirm -S grub"
+    
+        echo "[*] Preapring GRUB2 to support booting from the LUKS partition..."
+        echo "GRUB_ENABLE_CRYPTODISK=y" >> /mnt/etc/default/grub
+        sed -i 's/GRUB_CMDLINE_LINUX=""/#GRUB_CMDLINE_LINUX=""/' /mnt/etc/default/grub
+        #echo "GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT\"" >> /mnt/etc/default/grub
+        echo "GRUB_CMDLINE_LINUX=\"$KERNEL_CMDLINE\"" >> /mnt/etc/default/grub
+        echo "GRUB_PRELOAD_MODULES=\"cryptodisk part_msdos\"" >> /mnt/etc/default/grub
+        tail /mnt/etc/default/grub
+        sleep 2
+    
+        arch-chroot /mnt /bin/bash -c "\
+            echo \"[*] Installing GRUB2 to disk...\";\
+            grub-install $DISK;\
+            
+            echo \"[*] Generating a GRUB2 configuration file...\";\
+            grub-mkconfig -o /boot/grub/grub.cfg"
+    elif [ "$UEFI" == 1 ];
+    then
+        arch-chroot /mnt /bin/bash -c "\
+            echo '[*] Installing required packages...';\
+            pacman --disable-download-timeout --needed --noconfirm -S efibootmgr sbctl;\
+        
+            echo '[*] Generating signing keys for UEFI Secure Boot...';\
+            sbctl create-keys;\
+    
+            echo '[*] Enrolling the signing keys for UEFI Secure Boot...';\
+            sbctl enroll-keys --ignore-immutable --microsoft;\
+        
+            echo '[*] Generating a unified kernel image for Arch Linux...';\
+            sbctl bundle --amducode /boot/amd-ucode.img \
+                --cmdline /etc/kernel/cmdline \
+                --initramfs /boot/initramfs-linux-hardened.img \
+                --intelucode /boot/intel-ucode.img \
+                --kernel-img /boot/vmlinuz-linux-hardened \
+                --save \
+                /boot/efi/EFI/arch.efi;\
+    
+            echo '[*] Signing the unified kernel image...';\
+            sbctl sign /boot/efi/EFI/arch.efi;\
+            
+            echo '[*] Creating a boot entry...';\
+            efibootmgr --disk $DISK --part 1 --create --label 'arch' --load '\EFI\arch.efi' --verbose;\
+            efibootmgr -v;\
+            sleep 3"
+    else
+        echo "[X] ERROR: Variable 'UEFI' is "$UEFI" but must be 0 or 1. Exiting..."
+        exit 1
+    fi
 }
 
 _03_07_install_pkgs() {
-    #FIXME
+    echo "[*] Skipping installation of packages..."
 }
 
 _03_08_00_services() {
@@ -437,11 +537,15 @@ _03_08_00_services() {
 }
 
 _03_08_01_services_disable() {
-    #FIXME
+    echo "[*] Skipping disabling of services..."
 }
 
 _03_08_02_services_enable() {
-    #FIXME
+    arch-chroot /mnt /bin/bash -c "\
+        systemctl enable dhcpcd;\
+        systemctl enable NetworkManager.service;\
+        systemctl enable systemd-timesyncd;\
+        systemctl enable tlp.service"
 }
 
 _03_09_00_user() {
@@ -449,12 +553,14 @@ _03_09_00_user() {
     _03_09_01_user_add
     _03_09_02_user_set_pass
     _03_09_03_user_add_groups
-    _03_09_04_user_init_env
-    _03_09_05_user_root_lock
+    _03_09_04_user_set_permissions
+    _03_09_05_user_init_env
+    _03_09_06_user_root_lock
 }
 
 _03_09_01_user_add() {
-    #FIXME
+    echo "[*] Adding the home user '$USER_NAME'..."
+    useradd --root /mnt -m $USER_NAME -G users
 }
 
 _03_09_02_user_set_pass() {
@@ -472,17 +578,34 @@ _03_09_03_user_add_groups() {
     done
 }
 
-_03_09_04_user_init_env() {
-    #FIXME    
+_03_09_04_user_set_permissions() {
+    echo "[*] Granting sudo rights to the home user..."
+    echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
+    echo "@includedir /etc/sudoers.d" >> /mnt/etc/sudoers
 }
 
-_03_09_05_user_root_lock() {
+_03_09_05_user_init_env() {
+    echo "[*] Adding user paths & scripts..."
+    mkdir -p /mnt/home/$USER_NAME/tools
+    mkdir -p /mnt/home/$USER_NAME/workspace
+    
+    echo "sudo pacman --disable-download-timeout --needed --noconfirm -Syyu" > /mnt/home/$USER_NAME/tools/update.sh
+    echo "yay --disable-download-timeout --needed --noconfirm -Syyu" >> /mnt/home/$USER_NAME/tools/update.sh
+    echo "sudo pacman --noconfirm -Rns \$(pacman -Qdtq)" >> /mnt/home/$USER_NAME/tools/update.sh
+    echo "sudo chmod 4755 /opt/*/chrome-sandbox" >> /mnt/home/$USER_NAME/tools/update.sh
+    
+    chroot /mnt chown -R $USER_NAME:users /home/$USER_NAME   
+}
+
+_03_09_06_user_root_lock() {
     echo "[*] Locking the root account..."
     chroot /mnt passwd -l root
 }
 
 _03_10_unmount_fs() {
-    #FIXME
+    echo "[*] Unmounting filesystems..."
+    sync
+    umount -a
 }
 
 _03_11_stop_msg() {
