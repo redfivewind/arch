@@ -573,8 +573,8 @@ _03_09_03_user_add_groups() {
 
     for group in $GROUPS;
     do        
-        chroot /mnt addgroup -S $group
-        chroot /mnt adduser $USER_NAME $group
+        groupadd --root /mnt --force $group
+        usermod --root /mnt --append --groups $group $USER_NAME
     done
 }
 
