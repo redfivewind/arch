@@ -18,7 +18,7 @@ _01_01_start_msg() {
 _01_02_init_global_vars() {
     echo "[*] Initialising global variables..."
     DISK=""
-    GROUPS="audio netdev plugdev video wheel"
+    GROUP_ARRAY="audio netdev plugdev video wheel"
     HOSTNAME="localhost"
     LUKS_LVM="luks_lvm"
     LUKS_PASS=""
@@ -570,7 +570,7 @@ _03_09_02_user_set_pass() {
 _03_09_03_user_add_groups() {
     echo "[*] Adding user '$USER_NAME' to required groups..."
 
-    for group in $GROUPS;
+    for group in $GROUP_ARRAY;
     do        
         groupadd --root /mnt --force $group
         usermod --root /mnt --append --groups $group $USER_NAME
