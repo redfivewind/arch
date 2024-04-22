@@ -430,8 +430,7 @@ _03_04_00_ramdisk() {
     echo "MODULES=()" > /mnt/etc/mkinitcpio.conf
     echo "BINARIES=()" >> /mnt/etc/mkinitcpio.conf
     echo "HOOKS=(base udev keyboard keymap autodetect modconf kms block filesystems fsck encrypt lvm2)" >> /mnt/etc/mkinitcpio.conf
-    arch-chroot /mnt /bin/bash -c "\
-        mkinitcpio -p linux-hardened"
+    arch-chroot /mnt /bin/bash -c "mkinitcpio -p linux-hardened"
     sleep 2
 }
 
