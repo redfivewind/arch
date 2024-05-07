@@ -401,9 +401,9 @@ _03_02_02_net_set_hostname() {
 }
 
 _03_02_03_net_populate_hostsfile() {
-    echo "[*] Populating '/etc/hosts'..."
-    echo "127.0.0.1 localhost" > /mnt/etc/hosts
-    echo "::1 localhost" >> /mnt/etc/hosts
+    echo "[*] Populating the hosts file..."
+    echo "127.0.0.1 $HOSTNAME" | tee /etc/hosts
+    echo "::1 $HOSTNAME" | tee -a /etc/hosts
 }
 
 _03_03_00_kernel() {
