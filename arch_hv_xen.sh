@@ -1,13 +1,3 @@
-# Enable non-root access to libvirtd
-echo "[*] Enabling libvirt access for user '$USER_NAME'..."
-
-
-
-echo "[*] Enabling the 'libvirtd' service..."
-sudo systemctl enable libvirtd.service
-
-***************************************************************************************************************************************
-
 #FIXME: Snapshots
 #FIXME: Update script
 #FIXME: Xen commandline options
