@@ -5,7 +5,7 @@
 #FIXME: XSM FLASK
 
 # Start message
-echo "[*] This script installs the Xen virtualisation infrastructure on Arch Linux.x"
+echo "[*] This script installs the Xen virtualisation infrastructure on Arch Linux."
 echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
 read
 
