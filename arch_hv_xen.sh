@@ -1,3 +1,5 @@
+#FIXME: setuptools
+
 #FIXME: Snapshots
 #FIXME: Update script
 #FIXME: Xen commandline options
