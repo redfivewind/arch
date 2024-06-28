@@ -41,8 +41,6 @@ fi
 
 # Install required packages
 echo "[*] Installing required packages..."
-sudo -u "$SUDO_USER" yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S xen
-sudo -u "$SUDO_USER" yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S libvirt-xen
 pacman --disable-download-timeout --needed --noconfirm -S bridge-utils \
     dmidecode \
     ebtables \
@@ -50,10 +48,13 @@ pacman --disable-download-timeout --needed --noconfirm -S bridge-utils \
     libguestfs \
     libvirt \
     openbsd-netcat \
+    python-setuptools \
     seabios \
     spice-vdagent \
     virt-manager \
     virt-viewer
+sudo -u "$SUDO_USER" yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S xen
+sudo -u "$SUDO_USER" yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S libvirt-xen
 sleep 2
 
 # Enable modules
