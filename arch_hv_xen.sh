@@ -26,15 +26,22 @@ if [ $(id -u) == "0" ];
 then
     echo "[*] User has elevated rights. Continuing..."
 else
-    echo "[X] ERROR: The scripts must be run with elevated rights."
+    echo "[X] ERROR: The scripts must be run with elevated rights. Exiting..."
+    exit 1
+fi
+
+# Retrieve the sudo user
+if [ -z "$SUDO_USER" ];
+then
+    echo "[X] ERROR: Failed to retrieve the sudo user. Exiting..."
     exit 1
 fi
 
 # Install required packages
 echo "[*] Installing required packages..."
-yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S xen
-yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S libvirt-xen
-sudo pacman --disable-download-timeout --needed --noconfirm -S bridge-utils \
+sudo -u "$SUDO_USER" yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S xen
+sudo -u "$SUDO_USER" yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S libvirt-xen
+pacman --disable-download-timeout --needed --noconfirm -S bridge-utils \
     dmidecode \
     ebtables \
     edk2-ovmf \
