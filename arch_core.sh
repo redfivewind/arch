@@ -72,7 +72,7 @@ _01_03_02_prompt_user_disk() {
     echo
     fdisk -l
     echo
-    echo "[*] Please select the disk where Alpine Linux should be installed into: "
+    echo "[*] Please select the disk where Arch Linux should be installed into: "
     read disk
 
     if [ -z "$disk" ];
