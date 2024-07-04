@@ -217,7 +217,7 @@ _01_04_01_prep_cfg_pkg_mgr() {
 
 _01_04_02_prep_update_pkg_mgr() {
     echo "[*] Updating the pacman database..."
-    pacman --disable-download-timeout --noconfirm -Scc
+    #pacman --disable-download-timeout --noconfirm -Scc
     pacman --disable-download-timeout --noconfirm -Syy
 }
 
