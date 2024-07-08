@@ -463,7 +463,7 @@ _03_05_02_region_setup_locale() {
 _03_05_03_00_region_setup_time() {
     echo "[*] Setting up the time..."
     arch-chroot /mnt /bin/bash -c "hwclock --systohc --utc"
-    ln -sf /mnt/usr/share/zoneinfo/Europe/Berlin /mnt/etc/localtime
+    cp /mnt/usr/share/zoneinfo/Europe/Berlin /mnt/etc/localtime
 }
 
 _03_06_setup_boot_env() {
