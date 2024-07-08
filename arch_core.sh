@@ -342,7 +342,7 @@ _02_00() {
 
 _02_01_install_sys() {
     echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
-    pacstrap /mnt amd-ucode base base-devel dhcpcd gptfdisk gvfs intel-ucode iptables-nft iwd linux-firmware linux-hardened lvm2 mkinitcpio nano networkmanager net-tools p7zip pavucontrol pulseaudio pulseaudio-alsa sudo unzip zip
+    pacstrap /mnt amd-ucode arch-audit base base-devel dhcpcd gptfdisk gvfs intel-ucode iptables-nft iwd linux-firmware linux-hardened lvm2 mkinitcpio nano networkmanager net-tools p7zip pavucontrol pulseaudio pulseaudio-alsa sudo unzip zip
     sleep 2
 }
 
