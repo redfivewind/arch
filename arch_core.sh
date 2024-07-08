@@ -419,7 +419,7 @@ _03_03_01_kernel_cfg_crypttab() {
 }
 
 _03_03_02_kernel_cfg_fstab() {
-    if [ "$UEFI" == 0 ];
+    if [ "$UEFI" == 1 ];
     then
         echo "[*] Adding the EFI partition to '/etc/fstab'..."
         printf "UUID=$(blkid -o value -s UUID $PART_EFI)\t/boot/efi\tvfat\tdefaults,noatime\t0 1" | tee -a /mnt/etc/fstab
