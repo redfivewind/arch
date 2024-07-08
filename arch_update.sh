@@ -11,10 +11,6 @@ sudo pacman --noconfirm -Rns $(pacman -Qdtq)
 # Fix the chrome-sandbox bug
 sudo chmod 4755 /opt/*/chrome-sandbox
 
-#Update the Xen UKI
-#FIXME: Rebuild Xen UKI
-#FIXME: Sign Xen UKI
-
 # Stop message
 echo "[*] Work done. Exiting..."
 exit 0
