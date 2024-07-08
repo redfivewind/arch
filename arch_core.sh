@@ -428,7 +428,7 @@ _03_03_02_kernel_cfg_fstab() {
     echo "[*] Setting 'noatime' within the fstab file..."
     sed -i 's/relatime/noatime/g' /mnt/etc/fstab
     cat /mnt/etc/fstab
-    sleep 2
+    sleep 10
 }
 
 _03_04_00_ramdisk() {
