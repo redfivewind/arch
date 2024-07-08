@@ -422,13 +422,13 @@ _03_03_02_kernel_cfg_fstab() {
     if [ "$UEFI" == 1 ];
     then
         echo "[*] Adding the EFI partition to '/etc/fstab'..."
-        printf "UUID=$(blkid -o value -s UUID $PART_EFI)\t/boot/efi\tvfat\tdefaults,noatime\t0 1" | tee -a /mnt/etc/fstab
+        printf "UUID=$(blkid -o value -s UUID $PART_EFI)\t/boot/efi\tvfat\tdefaults,noatime\t0 1\n" | tee -a /mnt/etc/fstab
     fi
 
     echo "[*] Setting 'noatime' within the fstab file..."
     sed -i 's/relatime/noatime/g' /mnt/etc/fstab
     cat /mnt/etc/fstab
-    sleep 10
+    sleep 2
 }
 
 _03_04_00_ramdisk() {
