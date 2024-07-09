@@ -548,8 +548,7 @@ _03_08_02_services_enable() {
     arch-chroot /mnt /bin/bash -c "\
         systemctl enable dhcpcd;\
         systemctl enable NetworkManager.service;\
-        systemctl enable systemd-timesyncd;\
-        systemctl enable tlp.service"
+        systemctl enable systemd-timesyncd"
 }
 
 _03_09_00_user() {
