@@ -489,15 +489,15 @@ _03_06_setup_boot_env() {
         echo "[X] ERROR: Variable 'GPU_MODESET' is empty. This is unexpected behaviour. Exiting..."
         exit 1
     else
-        if [ "$GPU_NOMODESET" == "no" ];
+        if [ "$GPU_NOMODESET" == 0 ];
         then
             echo "[*] 'nomodeset' is disabled. Skipping..."
-        elif [ "$GPU_NOMODESET" == "yes" ];
+        elif [ "$GPU_NOMODESET" == 1 ];
         then
             echo "[*] 'nomodeset' is enabled. Preparing the kernel commandline..."
-            KERNEL_CMDLINE="$KERNEL_CMDLINE nomodeset i915.modeset=0 nouveau.modeset=0"
+            KERNEL_CMDLINE="$KERNEL_CMDLINE i915.modeset=0 nomodeset nouveau.modeset=0"
         else
-            echo "[X] ERROR: Valid answers to enable 'nomodeset' are 'yes' and 'no'. Exiting..."
+            echo "[X] ERROR: Variable 'GPU_NOMODESET' is "$GPU_NOMODESET" but must be 0 or 1. Exiting..."
             exit 1
         fi
     fi
