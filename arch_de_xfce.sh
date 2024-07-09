@@ -30,7 +30,7 @@ TOOLS="mousepad \
     ristretto \
     thunar-archive-plugin \
     xarchiver \
-    #xfce-polkit \
+    xfce-polkit \
     xfce4-cpugraph-plugin \
     xfce4-notifyd \
     xfce4-pulseaudio-plugin \
