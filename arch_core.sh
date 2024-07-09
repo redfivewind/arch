@@ -18,6 +18,7 @@ _01_01_start_msg() {
 _01_02_init_global_vars() {
     echo "[*] Initialising global variables..."
     DISK=""
+    GPU_NOMODESET=""
     GROUP_ARRAY="audio netdev plugdev video wheel"
     HOSTNAME="localhost"
     LUKS_LVM="luks_lvm"
@@ -42,7 +43,7 @@ _01_03_00_prompt_user() {
     _01_03_03_prompt_user_pass_luks
     _01_03_04_prompt_user_pass_user
     #_01_03_05_prompt_user_audio
-    #_01_03_06_prompt_user_gpu
+    _01_03_06_prompt_user_gpu
     #_01_03_07_prompt_user_keymap
     #_01_03_08_prompt_user_locale
     #_01_03_09_prompt_user_timezone
@@ -184,8 +185,19 @@ _01_03_05_prompt_user_audio() {
 }
 
 _01_03_06_prompt_user_gpu() {
-    #FIXME
-    return
+    echo "[*] Enable 'nomodeset' globally? (yes/no): "
+    read -s nomodeset
+
+    if [ "$nomodeset" == "no" ]; then
+        echo "[*] Disabling 'nomodeset'..."
+        GPU_NOMODESET=0
+    elif [ "$nomodeset" == "yes" ]; then
+        echo "[*] Enabling 'nomodeset'..."
+        GPU_NOMODESET=1
+    else
+        echo "[X] ERROR: Valid answers to enable 'nomodeset' are 'yes' and 'no'. Exiting..."
+        exit 1
+    fi
 }
 
 _01_03_07_prompt_user_keymap() {
@@ -470,7 +482,25 @@ _03_06_setup_boot_env() {
     echo "[*] Setting up the boot environment..."
 
     echo "[*] Updating the kernel cmdline..."
-    KERNEL_CMDLINE="cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT rw nomodeset i915.modeset=0 nouveau.modeset=0"
+    KERNEL_CMDLINE="cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT rw"
+
+    if [ -z "$GPU_NOMODESET" ];
+    then
+        echo "[X] ERROR: Variable 'GPU_MODESET' is empty. This is unexpected behaviour. Exiting..."
+        exit 1
+    else
+        if [ "$GPU_NOMODESET" == "no" ];
+        then
+            echo "[*] 'nomodeset' is disabled. Skipping..."
+        elif [ "$GPU_NOMODESET" == "yes" ];
+        then
+            echo "[*] 'nomodeset' is enabled. Preparing the kernel commandline..."
+            KERNEL_CMDLINE="$KERNEL_CMDLINE nomodeset i915.modeset=0 nouveau.modeset=0"
+        else
+            echo "[X] ERROR: Valid answers to enable 'nomodeset' are 'yes' and 'no'. Exiting..."
+            exit 1
+        fi
+    
     echo "$KERNEL_CMDLINE" > /mnt/etc/kernel/cmdline
         
     if [ "$UEFI" == 0 ];
