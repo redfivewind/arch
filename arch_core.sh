@@ -500,6 +500,7 @@ _03_06_setup_boot_env() {
             echo "[X] ERROR: Valid answers to enable 'nomodeset' are 'yes' and 'no'. Exiting..."
             exit 1
         fi
+    fi
     
     echo "$KERNEL_CMDLINE" > /mnt/etc/kernel/cmdline
         
