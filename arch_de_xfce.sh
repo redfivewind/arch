@@ -74,6 +74,8 @@ xfce4-settings-manager --reload
 # Configure udev for automatic screen resizing
 echo "[*] Configuring udev for automatic screen resizing..."
 echo "ACTION==\"change\", KERNEL==\"card0\", SUBSYSTEM==\"drm\" RUN+=\"/usr/local/bin/x-resize\"" | tee /etc/udev/rules.d/50-x-resize.rules
+echo "xrandr --output Virtual-1 --auto" > /usr/local/bin/x-resize
+chmod +x /usr/local/bin/x-resize
 
 # Enable LightDM service
 echo "[*] Enabling the LightDM service..."
