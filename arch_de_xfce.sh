@@ -57,10 +57,10 @@ echo "EndSection" | sudo tee -a /usr/share/X11/xorg.conf.d/50-qxl.conf
 
 echo "[*] Setting the Xfce keyboard layout to German..."
 echo "Section \"InputClass\"" | sudo tee /etc/X11/xorg.conf.d/00-keyboard.conf
-echo "  Identifier \"system-keyboard\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
-echo "  MatchIsKeyboard \"on\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
-echo "  Option \"XkbLayout\" \"de\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
-echo "  Option \"XkbVariant\" \"nodeadkeys\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
+echo "Identifier \"system-keyboard\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
+echo "MatchIsKeyboard \"on\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
+echo "Option \"XkbLayout\" \"de\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
+echo "Option \"XkbVariant\" \"nodeadkeys\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
 echo "EndSection" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
 
 #export DISPLAY=:0
