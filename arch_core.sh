@@ -341,7 +341,7 @@ _02_00() {
 
 _02_01_install_sys() {
     echo "[*] Bootstrapping Arch Linux into /mnt including base packages..."
-    pacstrap /mnt amd-ucode arch-audit base base-devel dhcpcd gptfdisk gvfs intel-ucode iptables-nft iwd linux-firmware linux-hardened lvm2 mkinitcpio nano networkmanager net-tools p7zip pavucontrol pulseaudio pulseaudio-alsa sudo unzip zip
+    pacstrap /mnt amd-ucode arch-audit base base-devel dhcpcd gptfdisk gvfs intel-ucode iptables-nft iwd linux-firmware linux-hardened lvm2 mkinitcpio nano networkmanager net-tools p7zip pavucontrol pulseaudio pulseaudio-alsa sudo tlp unzip zip
     sleep 2
 }
 
@@ -548,7 +548,8 @@ _03_08_02_services_enable() {
     arch-chroot /mnt /bin/bash -c "\
         systemctl enable dhcpcd;\
         systemctl enable NetworkManager.service;\
-        systemctl enable systemd-timesyncd"
+        systemctl enable systemd-timesyncd;\
+        systemctl enable tlp.service"
 }
 
 _03_09_00_user() {
