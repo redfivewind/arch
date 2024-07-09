@@ -71,6 +71,10 @@ xfconf-query -c xfce4-session -p /general/LockCommand -s "light-locker-command -
 xfconf-query -c xsettings -p /Net/ThemeName -s "Adwaita-dark"
 xfce4-settings-manager --reload
 
+# Configure udev for automatic screen resizing
+echo "[*] Configuring udev for automatic screen resizing..."
+echo "ACTION==\"change\", KERNEL==\"card0\", SUBSYSTEM==\"drm\" RUN+=\"/usr/local/bin/x-resize\"" | tee /etc/udev/rules.d/50-x-resize.rules
+
 # Enable LightDM service
 echo "[*] Enabling the LightDM service..."
 sudo systemctl enable lightdm.service
