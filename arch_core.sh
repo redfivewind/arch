@@ -470,7 +470,7 @@ _03_06_setup_boot_env() {
     echo "[*] Setting up the boot environment..."
 
     echo "[*] Updating the kernel cmdline..."
-    KERNEL_CMDLINE="cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT rw"
+    KERNEL_CMDLINE="cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT rw nomodeset i915.modeset=0 nouveau.modeset=0"
     echo "$KERNEL_CMDLINE" > /mnt/etc/kernel/cmdline
         
     if [ "$UEFI" == 0 ];
