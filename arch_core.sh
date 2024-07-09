@@ -186,7 +186,8 @@ _01_03_05_prompt_user_audio() {
 
 _01_03_06_prompt_user_gpu() {
     echo "[*] Enable 'nomodeset' globally? (yes/no): "
-    read -s nomodeset
+    read nomodeset
+    nomodeset=$(echo "$nomodeset" | tr '[:upper:]' '[:lower:]')
 
     if [ "$nomodeset" == "no" ]; then
         echo "[*] Disabling 'nomodeset'..."
