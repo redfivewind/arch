@@ -46,9 +46,16 @@ done
 
 # Configure XFCE
 echo "[*] Configuring XFCE..."
+sudo mkdir -p /etc/X11/xorg.conf.d/
+
+echo "[*] Configuring possible QXL GPUs..."
+echo "Section \"Device\"" | sudo tee /usr/share/X11/xorg.conf.d/50-qxl.conf
+echo "Identifier \"qxl\"" | sudo tee -a /usr/share/X11/xorg.conf.d/50-qxl.conf
+echo "Driver \"qxl\"" | sudo tee -a /usr/share/X11/xorg.conf.d/50-qxl.conf
+echo "Option \"ENABLE_SURFACES\" \"False\"" | sudo tee -a /usr/share/X11/xorg.conf.d/50-qxl.conf
+echo "EndSection" | sudo tee -a /usr/share/X11/xorg.conf.d/50-qxl.conf
 
 echo "[*] Setting the Xfce keyboard layout to German..."
-sudo mkdir -p /etc/X11/xorg.conf.d/
 echo "Section \"InputClass\"" | sudo tee /etc/X11/xorg.conf.d/00-keyboard.conf
 echo "  Identifier \"system-keyboard\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
 echo "  MatchIsKeyboard \"on\"" | sudo tee -a /etc/X11/xorg.conf.d/00-keyboard.conf
