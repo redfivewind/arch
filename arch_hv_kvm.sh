@@ -20,6 +20,7 @@ sudo pacman --disable-download-timeout --needed --noconfirm -S bridge-utils \
   openbsd-netcat \
   qemu-full \
   seabios \
+  spice \
   vde2 \
   virt-manager \
   virt-viewer
@@ -34,10 +35,10 @@ echo "unix_sock_rw_perms = \"0770\"" | sudo tee -a /etc/libvirt/libvirtd.conf
 echo "[*] Adding the user '$(whoami)' to the libvirt group..."
 sudo usermod -a -G libvirt $(whoami)
 
-echo "[*] Enabling the libvirtd service..."
+# Configure services
+echo "[*] Configuring services..."
+sudo systemctl enable libvirt-guests.service
 sudo systemctl enable libvirtd
-sudo systemctl restart libvirtd
-sudo systemctl status libvirtd
 
 # Enable nested virtualisation
 echo "[*] Enabling nested virtualisation..."
