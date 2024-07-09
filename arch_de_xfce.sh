@@ -1,6 +1,6 @@
 # Start message
 echo "[*] This script installs the desktop environment XFCE on this Arch Linux system."
-echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue...x"
+echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
 read
 
 # System update
