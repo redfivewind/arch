@@ -10,6 +10,8 @@ sudo pacman --disable-download-timeout --needed --noconfirm -Syu
 # Install X.Org
 echo "[*] Installing X.Org..."
 sudo pacman --disable-download-timeout --needed --noconfirm -S \
+    spice-vdagent \
+    xf86-video-qxl \
     xorg \
     xorg-drivers
 
