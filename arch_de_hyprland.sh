@@ -21,6 +21,7 @@ yay --disable-download-timeout --needed --noconfirm -S \
     hyprland \
     kitty \
     mako \
+    swaylock \
     swww \
     waybar \
     wlogout \
