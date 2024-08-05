@@ -6,16 +6,25 @@ read
 # System update
 echo "[*] Updating the system..."
 sudo pacman --disable-download-timeout --needed --noconfirm -Syu
+yay --disable-download-timeout --needed --noconfirm -Syu
 
 # Install Wayland
 echo "[*] Installing Wayland..."
-sudo pacman --disable-download-timeout --needed --noconfirm -S wayland
+yay --disable-download-timeout --needed --noconfirm -S wayland
 
 # Install Hyprland and tuigreet
 echo "[*] Installing Hyprland & tuigreet..."
-sudo pacman --disable-download-timeout --needed --noconfirm -S \
+yay --disable-download-timeout --needed --noconfirm -S \
+    brightnessctl \
     greetd-tuigreet \
+    grim \
     hyprland \
+    kitty \
+    mako \
+    swww \
+    waybar \
+    wlogout \
+    xdg-desktop-portal-hyprland 
 
 # Cleanup
 echo "[*] Removing other packages that are no longer required..."
