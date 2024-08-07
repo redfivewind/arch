@@ -48,6 +48,12 @@ done
 echo "[*] Configuring XFCE..."
 sudo mkdir -p /etc/X11/xorg.conf.d/
 
+echo "[*] Configuring possible Intel GPUs..."
+echo "Section \"Device\"" | sudo tee /usr/share/X11/xorg.conf.d/20-intel.conf
+echo "Identifier \"Intel Graphics\"" | sudo tee -a /usr/share/X11/xorg.conf.d/20-intel.conf
+echo "Driver \"modesetting\"" | sudo tee -a /usr/share/X11/xorg.conf.d/20-intel.conf
+echo "EndSection" | sudo tee -a /usr/share/X11/xorg.conf.d/20-intel.conf
+
 echo "[*] Configuring possible QXL GPUs..."
 echo "Section \"Device\"" | sudo tee /usr/share/X11/xorg.conf.d/50-qxl.conf
 echo "Identifier \"qxl\"" | sudo tee -a /usr/share/X11/xorg.conf.d/50-qxl.conf
