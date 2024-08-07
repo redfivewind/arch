@@ -20,7 +20,7 @@ _01_02_init_global_vars() {
     DISK=""
     GPU_NOMODESET=""
     GROUP_ARRAY="audio netdev plugdev video wheel"
-    HOSTNAME="localhost"
+    HOSTNAME="workstation"
     LUKS_LVM="luks_lvm"
     LUKS_PASS=""
     LV_ROOT="lv_root"
