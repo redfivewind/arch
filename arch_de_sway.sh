@@ -11,6 +11,8 @@ sudo pacman --disable-download-timeout --needed --noconfirm -Syu
 echo "[*] Installing required packages..."
 sudo pacman --disable-download-timeout --needed --noconfirm -S \
     greetd \
+    sway \
+    swayidle \
     tuigreet \
     wayland \
     xarchiver \
