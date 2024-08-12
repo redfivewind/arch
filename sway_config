@@ -1,0 +1,9 @@
+exec swayidle -w \
+	  timeout 1800 'swaylock -f' \
+	  timeout 1805 'swaymsg "output * power off"' \
+	  resume 'swaymsg "output * power on"'
+input * {
+    xkb_layout "us,de,ru"
+    xkb_variant "colemak,,typewriter"
+    xkb_options "grp:win_space_toggle"
+}
