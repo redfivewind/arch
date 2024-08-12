@@ -17,10 +17,12 @@ sudo pacman --disable-download-timeout --needed --noconfirm -S \
     swaybg \
     swayidle \
     swaylock \
+    thunar \
+    thunar-archive-plugin \
     tuigreet \
     wayland \
     xarchiver \
-    xorg-server-xwayland
+    #xorg-server-xwayland
 
 # Configure services
 echo "[*] Configuring services..."
