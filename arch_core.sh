@@ -18,6 +18,11 @@ _01_01_start_msg() {
 _01_02_init_global_vars() {
     echo "[*] Initialising global variables..."
     DISK=""
+    GPU_AMD_DRIVERS=""
+    GPU_INTEL_DRIVERS=""
+    GPU_INTEL_NOMODESET=""
+    GPU_NVIDIA_DRIVERS=""
+    GPU_NVIDIA_NOMODESET=""
     GPU_NOMODESET=""
     GROUP_ARRAY="audio netdev plugdev video wheel"
     HOSTNAME="workstation"
@@ -185,6 +190,27 @@ _01_03_05_prompt_user_audio() {
 }
 
 _01_03_06_prompt_user_gpu() {
+    echo "[*] Querying for the GPU configuration..."
+    _01_03_06_01_prompt_user_gpu_amd
+    _01_03_06_02_prompt_user_gpu_intel
+    _01_03_06_03_prompt_user_gpu_nvidia
+    _01_03_06_03_prompt_user_gpu_nomodeset
+}
+
+
+_01_03_06_01_prompt_user_gpu_amd() {
+    return
+}
+
+_01_03_06_02_prompt_user_gpu_intel () {
+    return
+}
+
+_01_03_06_03_prompt_user_gpu_nvidia() {
+    return
+}
+
+_01_03_06_03_prompt_user_gpu_nomodeset() {
     echo "[*] Enable 'nomodeset' globally? (yes/no): "
     read nomodeset
     nomodeset=$(echo "$nomodeset" | tr '[:upper:]' '[:lower:]')
