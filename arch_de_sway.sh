@@ -10,9 +10,13 @@ sudo pacman --disable-download-timeout --needed --noconfirm -Syu
 # Install required packages
 echo "[*] Installing required packages..."
 sudo pacman --disable-download-timeout --needed --noconfirm -S \
+    clipman \
     greetd \
+    polkit \
     sway \
+    swaybg \
     swayidle \
+    swaylock \
     tuigreet \
     wayland \
     xarchiver \
