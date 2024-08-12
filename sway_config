@@ -1,9 +1,27 @@
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +1%
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -1%
+bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+bindsym XF86MonBrightnessDown exec brightnessctl set 1%-
+bindsym XF86MonBrightnessUp exec brightnessctl set 1%+
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
+bindsym XF86Search exec bemenu-run
+
 exec swayidle -w \
 	  timeout 1800 'swaylock -f' \
 	  timeout 1805 'swaymsg "output * power off"' \
 	  resume 'swaymsg "output * power on"'
+
+for_window [shell="xwayland"] title_format "[XWayland] %title"
+
 input * {
-    xkb_layout "us,de,ru"
-    xkb_variant "colemak,,typewriter"
+    xkb_layout "de"
+    xkb_variant ""
     xkb_options "grp:win_space_toggle"
 }
+input type:keyboard xkb_capslock enabled
+input type:keyboard xkb_numlock enabled
+
+xwayland disable
