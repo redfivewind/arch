@@ -1,10 +1,4 @@
-# Start message
-echo "[*] This script installs '$SCRIPT_NAME' on this system."
-echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
-read
-
 # Global variables
-echo "[*] Initialising global variables..."
 PKG_ARRAY="\
     ddrescue \
     detect-it-easy-bin \
@@ -20,6 +14,11 @@ PKG_ARRAY="\
     yara-git
 "
 SCRIPT_NAME="arch_forensics'
+
+# Start message
+echo "[*] This script installs '$SCRIPT_NAME' on this system."
+echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
+read
 
 # Check, whether YAY is installed
 echo "[*] Detecting YAY..."
