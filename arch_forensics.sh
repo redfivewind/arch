@@ -11,8 +11,7 @@ PKG_ARRAY="\
     python-yara-git \
     testdisk \
     vscodium-bin \
-    yara-git \
-"
+    yara-git"
 SCRIPT_NAME="arch_forensics'
 
 # Start message
