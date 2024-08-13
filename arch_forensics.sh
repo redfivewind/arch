@@ -1,5 +1,5 @@
 # Global variables
-PKG_ARRAY=$(cat <<EOF
+PKG_ARRAY=$(cat <<EOFx
 ddrescue
 detect-it-easy-bin
 ghidra
