@@ -17,7 +17,7 @@ SCRIPT_NAME="arch_forensics'
 
 # Start message
 echo "[*] This script installs '$SCRIPT_NAME' on this system."
-echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
+echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue...x"
 read
 
 # Check, whether YAY is installed
