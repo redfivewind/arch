@@ -14,7 +14,7 @@ vscodium-bin
 yara-git
 EOF
 )    
-SCRIPT_NAME="arch_forensics'
+SCRIPT_NAME="arch_forensics"
 
 # Start message
 echo "[*] This script installs '$SCRIPT_NAME' on this system."
