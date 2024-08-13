@@ -1,17 +1,19 @@
 # Global variables
-PKG_ARRAY="\
-    ddrescue \
-    detect-it-easy-bin \
-    ghidra \
-    ida-free \
-    pe-bear-bin \
-    photorec \
-    python \
-    python-virtualenv \
-    python-yara-git \
-    testdisk \
-    vscodium-bin \
-    yara-git"
+PKG_ARRAY=$(cat <<EOF
+ddrescue
+detect-it-easy-bin
+ghidra
+ida-free
+pe-bear-bin
+photorec
+python
+python-virtualenv
+python-yara-git
+testdisk
+vscodium-bin
+yara-git
+EOF
+)    
 SCRIPT_NAME="arch_forensics'
 
 # Start message
