@@ -42,7 +42,7 @@ echo "[terminal]" | sudo tee $GREETD_CFG
 echo "vt = 7" | sudo tee -a $GREETD_CFG
 echo "" | sudo tee -a $GREETD_CFG
 echo "[default_session]" | sudo tee -a $GREETD_CFG
-echo "command = \"tuigreet --cmd Hyprland --time --time-format '%Y-%m-%d %H:%M:%S'\"" | sudo tee -a $GREETD_CFG
+echo "command = \"tuigreet --cmd Hyprland --greeting 'Access is restricted to authorised personnel only.' --time --time-format '%Y-%m-%d %H:%M:%S'\"" | sudo tee -a $GREETD_CFG
 echo "user = \"greetd\"" | sudo tee -a $GREETD_CFG
 
 # Configure services
