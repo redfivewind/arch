@@ -24,6 +24,7 @@ pacman --disable-download-timeout --needed --noconfirm -S hyprland
 echo "[*] Installing Hyprland & tuigreet..."
 yay --disable-download-timeout --needed --noconfirm -S \
     brightnessctl \
+    greetd \
     greetd-tuigreet \
     grim \
     kitty \
@@ -41,7 +42,7 @@ echo "[terminal]" | sudo tee $GREETD_CFG
 echo "vt = 1" | sudo tee -a $GREETD_CFG
 echo "" | sudo tee -a $GREETD_CFG
 echo "[default_session]" | sudo tee -a $GREETD_CFG
-echo "command = \"tuigreet --cmd 'exec Hyprland'\"" | sudo tee -a $GREETD_CFG
+echo "command = \"tuigreet --cmd Hyprland\"" | sudo tee -a $GREETD_CFG
 echo "user = \"greetd\"" | sudo tee -a $GREETD_CFG
 
 # Configure services
