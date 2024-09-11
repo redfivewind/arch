@@ -14,11 +14,11 @@ yay --disable-download-timeout --needed --noconfirm -Syu
 
 # Install Wayland
 echo "[*] Installing Wayland..."
-yay --disable-download-timeout --needed --noconfirm -S wayland
+pacman --disable-download-timeout --needed --noconfirm -S wayland
 
 # Install Hyprland
 echo "[*] Installing Hyprland..."
-yay --disable-download-timeout --needed --noconfirm -S hyprland
+pacman --disable-download-timeout --needed --noconfirm -S hyprland
 
 # Install required packages
 echo "[*] Installing Hyprland & tuigreet..."
