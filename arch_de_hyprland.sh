@@ -20,6 +20,10 @@ pacman --disable-download-timeout --needed --noconfirm -S wayland
 echo "[*] Installing Hyprland..."
 pacman --disable-download-timeout --needed --noconfirm -S hyprland
 
+# Configure Hyprland
+echo "[*] Configuring Hyprland..."
+#FIXME
+
 # Install required packages
 echo "[*] Installing Hyprland & tuigreet..."
 yay --disable-download-timeout --needed --noconfirm -S \
