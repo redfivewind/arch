@@ -39,7 +39,7 @@ yay --disable-download-timeout --needed --noconfirm -S \
 # Configure greetd
 echo "[*] Configuring greetd..."
 echo "[terminal]" | sudo tee $GREETD_CFG
-echo "vt = next" | sudo tee -a $GREETD_CFG
+echo "vt = 7" | sudo tee -a $GREETD_CFG
 echo "" | sudo tee -a $GREETD_CFG
 echo "[default_session]" | sudo tee -a $GREETD_CFG
 echo "command = \"tuigreet --cmd Hyprland --time --time-format '%Y-%m-%d %H:%M:%S'\"" | sudo tee -a $GREETD_CFG
