@@ -17,7 +17,7 @@ sudo pacman --disable-download-timeout --needed --noconfirm -S egl-wayland libgl
 
 # Install GNOME
 echo "[*] Installing GNOME..."
-sudo pacman --disable-download-timeout --needed --noconfirm -S gdm gnome-control-center gnome-session gnome-shell gnome-terminal gnome-tweaks nautilus
+sudo pacman --disable-download-timeout --needed --noconfirm -S gdm gnome-control-center gnome-session gnome-shell gnome-terminal gnome-themes-extra gnome-tweaks nautilus
 
 # Configure GNOME
 echo "[*] Configuring GNOME..."
