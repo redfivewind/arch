@@ -27,6 +27,7 @@ echo "[*] Installing further packages..."
 sudo pacman --disable-download-timeout --needed --noconfirm -S \
     baobab \
     evince \
+    gnome-clocks \
     gnome-disk-utility \
     gnome-system-monitor \
     gnome-text-editor \
