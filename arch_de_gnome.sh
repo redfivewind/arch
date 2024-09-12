@@ -19,7 +19,7 @@ sudo pacman --disable-download-timeout --needed --noconfirm -S egl-wayland libgl
 echo "[*] Installing GNOME..."
 sudo pacman --disable-download-timeout --needed --noconfirm -S gdm gnome-control-center gnome-session gnome-shell gnome-terminal gnome-tweaks nautilus
 
-# Configure Hyprland
+# Configure GNOME
 echo "[*] Configuring GNOME..."
 #FIXME
 
