@@ -21,13 +21,14 @@ sudo pacman --disable-download-timeout --needed --noconfirm -S gdm gnome-control
 
 # Configure GNOME
 echo "[*] Configuring GNOME..."
-#FIXME
+gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'de')]"
+gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 
 # Install further packages
-#echo "[*] Installing further packages..."
-#sudo pacman --disable-download-timeout --needed --noconfirm -S \
-    #brightnessctl \
-    #greetd \
+echo "[*] Installing further packages..."
+sudo pacman --disable-download-timeout --needed --noconfirm -S \
+    spice-vdagent \
+    xf86-video-qxl
 
 # Configure services
 echo "[*] Configuring services..."
