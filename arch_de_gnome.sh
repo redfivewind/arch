@@ -22,6 +22,7 @@ sudo pacman --disable-download-timeout --needed --noconfirm -S gdm gnome-control
 # Configure GNOME
 echo "[*] Configuring GNOME..."
 gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'de')]"
+gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 
 # Install further packages
