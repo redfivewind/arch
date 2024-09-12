@@ -3,9 +3,6 @@ echo "[*] This script installs GNOME on Arch Linux."
 echo "[!] ALERT: This script is potentially destructive. Use it on your own risk. Press any key to continue..."
 read
 
-# Global variables
-echo "[*] Initialising global variables..."
-
 # System update
 echo "[*] Updating the system..."
 sudo pacman --disable-download-timeout --needed --noconfirm -Syu
@@ -28,6 +25,12 @@ gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,m
 # Install further packages
 echo "[*] Installing further packages..."
 sudo pacman --disable-download-timeout --needed --noconfirm -S \
+    baobab \
+    evince \
+    gnome-disk-utility \
+    gnome-system-monitor \
+    gnome-text-editor \
+    loupe \
     spice-vdagent \
     xf86-video-qxl
 
