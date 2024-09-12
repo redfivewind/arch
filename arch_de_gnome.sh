@@ -17,17 +17,17 @@ sudo pacman --disable-download-timeout --needed --noconfirm -S egl-wayland libgl
 
 # Install GNOME
 echo "[*] Installing GNOME..."
-sudo --disable-download-timeout --needed --noconfirm -S gdm gnome-control-center gnome-session gnome-shell gnome-terminal gnome-tweaks nautilus
+sudo pacman --disable-download-timeout --needed --noconfirm -S gdm gnome-control-center gnome-session gnome-shell gnome-terminal gnome-tweaks nautilus
 
 # Configure Hyprland
 echo "[*] Configuring GNOME..."
 #FIXME
 
 # Install further packages
-echo "[*] Installing further packages..."
-sudo --disable-download-timeout --needed --noconfirm -S \
-    brightnessctl \
-    greetd \
+#echo "[*] Installing further packages..."
+#sudo pacman --disable-download-timeout --needed --noconfirm -S \
+    #brightnessctl \
+    #greetd \
 
 # Configure services
 echo "[*] Configuring services..."
