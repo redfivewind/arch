@@ -1,9 +1,5 @@
-#FIXME: setuptools
-
 #FIXME: Snapshots
 #FIXME: Update script
-#FIXME: Xen commandline options
-#FIXME: Xen CPU microcode
 #FIXME: XSM FLASK
 
 # Start message
