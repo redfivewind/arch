@@ -71,25 +71,37 @@ sleep 2
 # Generate Xen configuration file
 echo "[*] Generating the Xen configuration file '$TMP_XEN_CFG'..."
 
-sudo shred -f -z -u $TMP_XEN_CFG
-echo '[global]' | sudo tee $TMP_XEN_CFG
-echo 'default=arch-linux' | sudo tee -a $TMP_XEN_CFG
-echo '' | sudo tee -a $TMP_XEN_CFG
-echo "[arch-linux]" | sudo tee -a $TMP_XEN_CFG
-echo "options=com1=115200,8n1 console=com1,vga flask=disabled guest_loglvl=all iommu=debug,force,verbose loglvl=all noreboot ucode=scan vga=current,keep" | sudo tee -a $TMP_XEN_CFG
-echo "kernel=vmlinuz-lts $(cat /etc/kernel/cmdline) console=hvc0 console=tty0 earlyprintk=xen nomodeset" | sudo tee -a $TMP_XEN_CFG
-echo "ramdisk=initramfs-lts" | sudo tee -a $TMP_XEN_CFG
+shred -f -z -u $TMP_XEN_CFG
+echo '[global]' | tee $TMP_XEN_CFG
+echo 'default=arch-linux' | tee -a $TMP_XEN_CFG
+echo '' | tee -a $TMP_XEN_CFG
+echo "[arch-linux]" | tee -a $TMP_XEN_CFG
+#echo "options=com1=115200,8n1 console=com1,vga flask=disabled guest_loglvl=all iommu=debug,force,verbose loglvl=all noreboot ucode=scan vga=current,keep" | tee -a $TMP_XEN_CFG
+echo "options=console=vga flask=disabled iommu=force loglvl=all noreboot ucode=scan vga=current,keep" | tee -a $TMP_XEN_CFG
+echo "kernel=$KERNEL_VMLINUZ $(cat /etc/kernel/cmdline) console=hvc0 console=tty0 earlyprintk=xen" | tee -a $TMP_XEN_CFG
+echo "ramdisk=$KERNEL_INITRAMFS" | tee -a $TMP_XEN_CFG
 sleep 3
 
 # Generate Xen XSM configuration file
-echo "[*] Generating the Xen XSM configuration file '$TMP_XSM_CFG'..."
+#echo "[*] Generating the Xen XSM configuration file '$TMP_XSM_CFG'..."
 
-echo '' | sudo tee $TMP_XSM_CFG #FIXME
+#echo '' | tee $TMP_XSM_CFG #FIXME
 sleep 3
 
 # Generate unified Xen kernel image
 echo "[*] Generating the unified Xen kernel image (UKI)..."
-sudo cp /usr/lib/efi/xen.efi $TMP_XEN_EFI
+
+echo "[*] Creating a temporary xen.efi..."
+cp /usr/lib/efi/xen.efi $TMP_XEN_EFI
+
+echo "[*] Determining the last section in xen.efi..."
+set $(objdump -h $TMP_XEN_EFI | tail -n 2)
+echo "[*] Last section in xen.efi is '$2'."
+
+XEN_SECT_NAME_ARRAY="$2 .config .ramdisk .kernel .ucode"
+#.xsm
+XEN_SECT_PATH_ARRAY="$TMP_XEN_CFG /boot/$KERNEL_INITRAMFS /boot/$KERNEL_VMLINUZ /boot/intel-ucode.img"
+#$TMP_XSM_CFG
 
 while [ -n "$XEN_SECT_PATH_ARRAY" ];
 do
