@@ -61,8 +61,8 @@ kernel=$(echo "$kernel" | tr '[:upper:]' '[:lower:]')
 if [ "$kernel" == "linux" ];
 then
     echo "[*] Kernel: '$kernel'..."
-    KERNEL_INITRAMFS="initramfs"
-    KERNEL_VMLINUZ="vmlinuz"
+    KERNEL_INITRAMFS="initramfs-linux"
+    KERNEL_VMLINUZ="vmlinuz-linux"
 elif [ "$kernel" == "linux-hardened" ];
 then
     echo "[*] Kernel: '$kernel'..."
