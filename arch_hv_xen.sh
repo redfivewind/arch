@@ -77,7 +77,7 @@ echo 'default=arch-linux' | tee -a $TMP_XEN_CFG
 echo '' | tee -a $TMP_XEN_CFG
 echo "[arch-linux]" | tee -a $TMP_XEN_CFG
 #echo "options=com1=115200,8n1 console=com1,vga flask=disabled guest_loglvl=all iommu=debug,force,verbose loglvl=all noreboot ucode=scan vga=current,keep" | tee -a $TMP_XEN_CFG
-echo "options=console=vga flask=disabled iommu=force loglvl=all noreboot ucode=scan vga=current,keep" | tee -a $TMP_XEN_CFG
+echo "options=console=vga dom0_mem=4096M flask=disabled iommu=force loglvl=all noreboot ucode=scan vga=current,keep" | tee -a $TMP_XEN_CFG
 echo "kernel=$KERNEL_VMLINUZ $(cat /etc/kernel/cmdline) console=hvc0 console=tty0 earlyprintk=xen" | tee -a $TMP_XEN_CFG
 echo "ramdisk=$KERNEL_INITRAMFS" | tee -a $TMP_XEN_CFG
 sleep 3
