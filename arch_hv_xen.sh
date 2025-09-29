@@ -18,10 +18,64 @@ TMP_XEN_EFI="/tmp/xen.efi"
 TMP_XSM_CFG="/tmp/xsm.cfg"
 USER_NAME=$(whoami)
 XEN_EFI="/boot/efi/EFI/xen.efi"
-XEN_SECT_NAME_ARRAY=".pad .config .ramdisk .kernel .ucode"
-#.xsm
-XEN_SECT_PATH_ARRAY="$TMP_XEN_CFG /boot/initramfs-linux-hardened /boot/vmlinuz-linux-hardened /boot/intel-ucode.img"
-#$TMP_XSM_CFG
+
+# Check user rights
+if [ $(id -u) == "0" ];
+then
+    echo "[*] User has elevated rights. Continuing..."
+else
+    echo "[X] ERROR: The scripts must be run with elevated rights."
+    exit 1
+fi
+
+# Prompt for the system disk
+echo "[*] Please enter the system disk: "
+read disk
+disk=$(echo "$disk" | tr '[:upper:]' '[:lower:]')
+
+if [ -z "$disk" ];
+then
+    echo "[X] ERROR: No disk was selected. Exiting..."
+    exit 1
+else
+    DISK="$disk"
+    
+    if [ -e "$DISK" ]; 
+    then
+        echo "[*] Path '$DISK' exists."
+    
+        if [ -b "$DISK" ];
+        then
+            echo "[*] Path '$DISK' is a valid block device." 
+        else
+            echo "[X] ERROR: '$DISK' is not a valid block device. Exiting..."
+            exit 1
+        fi
+    else
+        echo "[X] ERROR: Path '$DISK' does not exist. Exiting..."
+        exit 1
+    fi
+fi
+
+# Prompt for the Arch Linux kernel
+echo "[*] Please select the kernel ('linux' or 'linux-hardened'): "
+read kernel
+kernel=$(echo "$kernel" | tr '[:upper:]' '[:lower:]')
+
+if [ "$kernel" == "linux" ];
+then
+    echo "[*] Kernel: '$kernel'..."
+    KERNEL_INITRAMFS="initramfs"
+    KERNEL_VMLINUZ="vmlinuz"
+elif [ "$kernel" == "linux-hardened" ];
+then
+    echo "[*] Kernel: '$kernel'..."
+    KERNEL_INITRAMFS="initramfs-hardened"
+    KERNEL_VMLINUZ="vmlinuz-hardened"
+else
+    echo "[X] ERROR: Variable 'kernel' is '$kernel' but must be 'linux' or 'linux-hardened'. Exiting..."
+    exit 1
+fi
 
 # Install required packages
 echo "[*] Installing required packages..."
@@ -43,9 +97,12 @@ sleep 2
 
 # Enable modules
 echo "[*] Enabling modules..."
-echo "tun" | sudo tee -a /etc/modules
-echo "xen-blkback" | sudo tee -a /etc/modules
-echo "xen-netback" | sudo tee -a /etc/modules
+echo "tun" | tee -a /etc/modules
+echo "xen_blkback" | tee -a /etc/modules
+echo "xen_netback" | tee -a /etc/modules
+echo "xen_pciback" | tee -a /etc/modules
+echo "xen_wdt" | tee -a /etc/modules
+echo "xenfs" | tee -a /etc/modules
 
 # Enable non-root access to libvirtd
 echo "[*] Enabling libvirt access for user '$USER_NAME'..."
