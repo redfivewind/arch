@@ -49,6 +49,6 @@ echo "[*] Deleting this script"
 shred --force --remove=wipesync --verbose --zero $(readlink -f $0)
 
 # Stop message
-echo "[*] Installation of desktop environment XFCE is finished. You may reboot now."
+echo "[*] Installation of desktop environment GNOME is finished. You may reboot now."
 echo "[*] Work done. Exiting..."
 exit 0
