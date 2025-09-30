@@ -7,3 +7,7 @@ read
 echo "[*] Updating the system..."
 sudo pacman --disable-download-timeout --needed --noconfirm -Syu
 yay --disable-download-timeout --needed --noconfirm -Syu
+
+# Install guest tools
+echo "[*] Installing virtualisation guest tools..."
+sudo pacman --disable-download-timeout --needed --noconfirm -S qemu-guest-agent spice-vdagent
