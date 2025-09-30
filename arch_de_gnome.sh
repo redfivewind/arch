@@ -14,7 +14,7 @@ sudo pacman --disable-download-timeout --needed --noconfirm -S egl-wayland libgl
 
 # Install GNOME
 echo "[*] Installing GNOME..."
-sudo pacman --disable-download-timeout --needed --noconfirm -S gdm gnome-control-center gnome-session gnome-shell gnome-terminal gnome-themes-extra gnome-tweaks nautilus
+sudo pacman --disable-download-timeout --needed --noconfirm -S gdm gnome-control-center gnome-session gnome-shell gnome-terminal gnome-themes-extra gnome-tweaks nautilus tela-circle-icon-theme-nord
 
 # Configure GNOME
 echo "[*] Configuring GNOME..."
@@ -33,9 +33,8 @@ sudo pacman --disable-download-timeout --needed --noconfirm -S \
     gnome-screenshot \
     gnome-system-monitor \
     gnome-text-editor \
-    loupe \
-    spice-vdagent \
-    xf86-video-qxl
+    loupe
+#qemu-guest-agent spice-vdagent xf86-video-qxl
 
 # Configure services
 echo "[*] Configuring services..."
