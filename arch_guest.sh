@@ -10,7 +10,8 @@ yay --disable-download-timeout --needed --noconfirm -Syu
 
 # Install guest packages
 echo "[*] Installing virtualisation guest packages..."
-sudo pacman --disable-download-timeout --needed --noconfirm -S qemu-guest-agent spice-vdagent xf86-video-qxl
+sudo pacman --disable-download-timeout --needed --noconfirm -S qemu-guest-agent spice-vdagent
+#xf86-video-qxl
 
 # Cleanup
 echo "[*] Removing other packages that are no longer required..."
