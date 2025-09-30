@@ -45,7 +45,7 @@ sudo systemctl enable gdm
 echo "[*] Removing other packages that are no longer required..."
 sudo pacman --noconfirm -Rns $(pacman -Qdtq)
 
-echo "[*] Deleting this script"
+echo "[*] Deleting this script..."
 shred --force --remove=wipesync --verbose --zero $(readlink -f $0)
 
 # Stop message
