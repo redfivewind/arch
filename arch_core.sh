@@ -509,7 +509,7 @@ _03_06_setup_boot_env() {
     echo "[*] Setting up the boot environment..."
 
     echo "[*] Updating the kernel cmdline..."
-    KERNEL_CMDLINE="cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT rw"
+    KERNEL_CMDLINE="cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT rw vfio-pci.disable_idle_d3=1"
 
     if [ -z "$GPU_NOMODESET" ];
     then
