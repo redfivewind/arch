@@ -651,8 +651,8 @@ _03_09_05_user_init_env() {
     mkdir -p /mnt/home/$USER_NAME/tools
     mkdir -p /mnt/home/$USER_NAME/workspace
     
-    echo "sudo pacman --disable-download-timeout --needed --noconfirm -Syyu --overwrite='*'" > /mnt/home/$USER_NAME/tools/update.sh
-    echo "yay --disable-download-timeout --needed --noconfirm -Syyu" >> /mnt/home/$USER_NAME/tools/update.sh
+    echo "sudo pacman --disable-download-timeout --needed --noconfirm -Syyu --overwrite='*' --ask=0" > /mnt/home/$USER_NAME/tools/update.sh
+    echo "yay --disable-download-timeout --needed --noconfirm -Syyu --overwrite='*' --ask=0" >> /mnt/home/$USER_NAME/tools/update.sh
     echo "sudo pacman --noconfirm -Rns \$(pacman -Qdtq)" >> /mnt/home/$USER_NAME/tools/update.sh
     echo "sudo chmod 4755 /opt/*/chrome-sandbox" >> /mnt/home/$USER_NAME/tools/update.sh
     
