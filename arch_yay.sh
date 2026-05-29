@@ -25,7 +25,11 @@ yay --version
 
 # Install required tools
 echo "[*] Installing AUR base packages..."
-yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S chkrootkit secure-delete tilix
+yay --disable-download-timeout --needed --noconfirm --rebuildall --sudoloop -S chkrootkit localepurge secure-delete tilix
+
+# Configure localepurge
+sed -i 's/^NEEDSCONFIGFIRST/#NEEDSCONFIGFIRST/' /etc/locale.nopurge
+sudo localepurge -d
 
 # Cleanup
 echo "[*] Removing package git..."
