@@ -539,7 +539,7 @@ _03_06_setup_boot_env() {
             echo \"[*] Installing the GRUB2 package...\";\
             pacman --disable-download-timeout --needed --noconfirm -S grub"
     
-        echo "[*] Preapring GRUB2 to support booting from the LUKS partition..."
+        echo "[*] Preparring GRUB2 to support booting from the LUKS partition..."
         echo "GRUB_ENABLE_CRYPTODISK=y" >> /mnt/etc/default/grub
         sed -i 's/GRUB_CMDLINE_LINUX=""/#GRUB_CMDLINE_LINUX=""/' /mnt/etc/default/grub
         #echo "GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=$(cryptsetup luksUUID $PART_LUKS):$LUKS_LVM root=/dev/$LVM_VG/$LV_ROOT\"" >> /mnt/etc/default/grub
